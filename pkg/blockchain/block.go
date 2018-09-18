@@ -28,12 +28,23 @@ func (block Block) Validate(previousBlock Block) bool {
 	hasValidPreviousHash := previousBlock.Hash == block.PreviousHash
 	hasValidCalculatedHash := block.CalculateHash() == block.Hash
 	hasValidHasAsPerTarget := block.IsValidTargetHash()
-	return hasValidPreviousHash && hasValidCalculatedHash && hasValidHasAsPerTarget
+	return hasValidPreviousHash && hasValidCalculatedHash && hasValidHasAsPerTarget && block.areTransactionsValid()
 }
 
 func (block Block) IsValidTargetHash() bool {
 	prefix := strings.Repeat("8", block.Target)
 	return strings.HasPrefix(block.Hash, prefix) && matchEndTargetCharacter(block)
+}
+
+func (block Block) areTransactionsValid() bool {
+	areValid := true
+	for _, transaction := range block.Transactions {
+		if !transaction.IsValid() {
+			areValid = false
+			break
+		}
+	}
+	return areValid
 }
 
 func matchEndTargetCharacter(block Block) bool {

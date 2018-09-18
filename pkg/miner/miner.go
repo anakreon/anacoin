@@ -1,9 +1,12 @@
 package miner
 
 import (
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/anakreon/anacoin/pkg/blockchain"
+	"github.com/anakreon/anacoin/pkg/mempool"
 )
 
 var shouldMine = false
@@ -31,13 +34,14 @@ func buildBlock() blockchain.Block {
 		Timestamp:    time.Now().Unix(),
 		PreviousHash: blockchain.GetLastBlockHash(),
 		Target:       4,
+		Transactions: buildTransactions(),
 	}
 	return block
 }
 
 func mineBlock(block blockchain.Block) blockchain.Block {
-	for nonce := int64(0); shouldContinueMining(block); nonce++ {
-		block.Nonce = string(nonce)
+	for shouldContinueMining(block) {
+		block.Nonce = generateRandomHex()
 		block.Hash = block.CalculateHash()
 	}
 	return block
@@ -45,4 +49,13 @@ func mineBlock(block blockchain.Block) blockchain.Block {
 
 func shouldContinueMining(block blockchain.Block) bool {
 	return shouldMine && !block.IsValidTargetHash()
+}
+
+func generateRandomHex() string {
+	randomInt := rand.Int63()
+	return strconv.FormatInt(randomInt, 16)
+}
+
+func buildTransactions() []blockchain.Transaction {
+	return mempool.GetAllTransactions()
 }
