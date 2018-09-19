@@ -8,6 +8,7 @@ import (
 )
 
 type Block struct {
+	Index        int64
 	PreviousHash string
 	Hash         string
 	Timestamp    int64
@@ -18,17 +19,21 @@ type Block struct {
 
 func (block Block) CalculateHash() string {
 	hashData := string(block.Timestamp) + block.PreviousHash + block.Nonce
-	hash := sha256.New()
-	hash.Write([]byte(hashData))
-	byteHash := hash.Sum(nil)
-	return hex.EncodeToString(byteHash)
+	return getSha256Hash(hashData)
+}
+
+func getSha256Hash(inputString string) string {
+	hasher := sha256.New()
+	hasher.Write([]byte(inputString))
+	hashBytes := hasher.Sum(nil)
+	return hex.EncodeToString(hashBytes[:])
 }
 
 func (block Block) Validate(previousBlock Block) bool {
 	hasValidPreviousHash := previousBlock.Hash == block.PreviousHash
 	hasValidCalculatedHash := block.CalculateHash() == block.Hash
-	hasValidHasAsPerTarget := block.IsValidTargetHash()
-	return hasValidPreviousHash && hasValidCalculatedHash && hasValidHasAsPerTarget && block.areTransactionsValid()
+	hasValidHashAsPerTarget := block.IsValidTargetHash()
+	return hasValidPreviousHash && hasValidCalculatedHash && hasValidHashAsPerTarget && block.hasCoinbaseTransaction() && block.areTransactionsValid()
 }
 
 func (block Block) IsValidTargetHash() bool {
@@ -36,15 +41,25 @@ func (block Block) IsValidTargetHash() bool {
 	return strings.HasPrefix(block.Hash, prefix) && matchEndTargetCharacter(block)
 }
 
+func (block Block) hasCoinbaseTransaction() bool {
+	return block.Transactions[0].In.ScriptSig == "COINBASE" &&
+		len(block.Transactions[0].Out) == 1 &&
+		block.Transactions[0].Out[0].Value == 1
+}
+
 func (block Block) areTransactionsValid() bool {
 	areValid := true
-	for _, transaction := range block.Transactions {
-		if !transaction.IsValid() {
+	for i := 1; i < len(block.Transactions); i++ {
+		if !isTransactionValid() {
 			areValid = false
 			break
 		}
 	}
 	return areValid
+}
+
+func isTransactionValid() bool {
+	return true
 }
 
 func matchEndTargetCharacter(block Block) bool {

@@ -11,3 +11,7 @@ func AddTransaction(transaction blockchain.Transaction) {
 func GetAllTransactions() []blockchain.Transaction {
 	return unconfirmedTransactions
 }
+
+func Clear() {
+	unconfirmedTransactions = []blockchain.Transaction{}
+}

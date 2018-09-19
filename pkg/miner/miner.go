@@ -10,33 +10,36 @@ import (
 )
 
 var shouldMine = false
+var coinbaseValue float64 = 1
 
-func StartMining() {
+func StartMining(pubKey string) {
 	shouldMine = true
-	mine()
+	mine(pubKey)
 }
 
 func StopMining() {
 	shouldMine = false
 }
 
-func mine() {
+func mine(pubKey string) {
 	for shouldMine {
-		block := buildBlock()
-		minedBlock := mineBlock(block)
+		candidateBlock := buildCandidateBlock(pubKey)
+		minedBlock := mineBlock(candidateBlock)
 		blockchain.AddToChain(minedBlock)
-		blockchain.PrintChain()
+		mempool.Clear()
 	}
 }
 
-func buildBlock() blockchain.Block {
-	block := blockchain.Block{
+func buildCandidateBlock(pubKey string) blockchain.Block {
+	previousBlock := blockchain.GetLastBlock()
+	candidateBlock := blockchain.Block{
+		Index:        previousBlock.Index + 1,
 		Timestamp:    time.Now().Unix(),
-		PreviousHash: blockchain.GetLastBlockHash(),
-		Target:       4,
-		Transactions: buildTransactions(),
+		PreviousHash: previousBlock.Hash,
+		Target:       5,
+		Transactions: buildTransactions(pubKey),
 	}
-	return block
+	return candidateBlock
 }
 
 func mineBlock(block blockchain.Block) blockchain.Block {
@@ -56,6 +59,24 @@ func generateRandomHex() string {
 	return strconv.FormatInt(randomInt, 16)
 }
 
-func buildTransactions() []blockchain.Transaction {
-	return mempool.GetAllTransactions()
+func buildTransactions(pubKey string) []blockchain.Transaction {
+	mempoolTransactions := mempool.GetAllTransactions()
+	coinbaseTransactions := []blockchain.Transaction{
+		buildCoinbaseTransaction(pubKey),
+	}
+	return append(coinbaseTransactions, mempoolTransactions...)
+}
+
+func buildCoinbaseTransaction(pubKey string) blockchain.Transaction {
+	return blockchain.Transaction{
+		In: blockchain.TransactionInput{
+			ScriptSig: "COINBASE",
+		},
+		Out: []blockchain.TransactionOutput{
+			blockchain.TransactionOutput{
+				Value:        coinbaseValue,
+				ScriptPubKey: pubKey,
+			},
+		},
+	}
 }

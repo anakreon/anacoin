@@ -1,10 +1,17 @@
 package blockchain
 
 type Transaction struct {
-	In  int
-	Out int
+	In  TransactionInput
+	Out []TransactionOutput
 }
 
-func (transaction Transaction) IsValid() bool {
-	return true
+type TransactionInput struct {
+	TxID      string
+	TxIndex   int8
+	ScriptSig string
+}
+
+type TransactionOutput struct {
+	Value        float64
+	ScriptPubKey string
 }

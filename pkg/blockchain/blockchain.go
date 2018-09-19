@@ -8,6 +8,7 @@ var chain = []Block{generateGenesisBlock()}
 
 func generateGenesisBlock() Block {
 	genesisBlock := Block{
+		Index:        0,
 		Timestamp:    0,
 		PreviousHash: "",
 		Nonce:        "imGenesis",
@@ -18,6 +19,7 @@ func generateGenesisBlock() Block {
 
 func AddToChain(block Block) {
 	if block.Validate(getLastBlock()) {
+		fmt.Println(block)
 		chain = append(chain, block)
 	}
 }
@@ -30,6 +32,6 @@ func getLastBlock() Block {
 	return chain[len(chain)-1]
 }
 
-func GetLastBlockHash() string {
-	return getLastBlock().Hash
+func GetLastBlock() Block {
+	return getLastBlock()
 }
