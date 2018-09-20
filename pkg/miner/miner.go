@@ -69,8 +69,10 @@ func buildTransactions(pubKey string) []blockchain.Transaction {
 
 func buildCoinbaseTransaction(pubKey string) blockchain.Transaction {
 	return blockchain.Transaction{
-		In: blockchain.TransactionInput{
-			ScriptSig: "COINBASE",
+		In: []blockchain.TransactionInput{
+			blockchain.TransactionInput{
+				ScriptSig: "COINBASE",
+			},
 		},
 		Out: []blockchain.TransactionOutput{
 			blockchain.TransactionOutput{

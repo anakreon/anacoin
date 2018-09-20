@@ -1,8 +1,6 @@
 package blockchain
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"regexp"
 	"strings"
 )
@@ -22,13 +20,6 @@ func (block Block) CalculateHash() string {
 	return getSha256Hash(hashData)
 }
 
-func getSha256Hash(inputString string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(inputString))
-	hashBytes := hasher.Sum(nil)
-	return hex.EncodeToString(hashBytes[:])
-}
-
 func (block Block) Validate(previousBlock Block) bool {
 	hasValidPreviousHash := previousBlock.Hash == block.PreviousHash
 	hasValidCalculatedHash := block.CalculateHash() == block.Hash
@@ -42,7 +33,8 @@ func (block Block) IsValidTargetHash() bool {
 }
 
 func (block Block) hasCoinbaseTransaction() bool {
-	return block.Transactions[0].In.ScriptSig == "COINBASE" &&
+	return len(block.Transactions[0].In) == 1 &&
+		block.Transactions[0].In[0].ScriptSig == "COINBASE" &&
 		len(block.Transactions[0].Out) == 1 &&
 		block.Transactions[0].Out[0].Value == 1
 }

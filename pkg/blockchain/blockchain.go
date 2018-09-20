@@ -18,7 +18,7 @@ func generateGenesisBlock() Block {
 }
 
 func AddToChain(block Block) {
-	if block.Validate(getLastBlock()) {
+	if block.Validate(GetLastBlock()) {
 		fmt.Println(block)
 		chain = append(chain, block)
 	}
@@ -28,10 +28,6 @@ func PrintChain() {
 	fmt.Println(chain)
 }
 
-func getLastBlock() Block {
-	return chain[len(chain)-1]
-}
-
 func GetLastBlock() Block {
-	return getLastBlock()
+	return chain[len(chain)-1]
 }

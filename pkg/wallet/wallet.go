@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"strconv"
 
 	"github.com/anakreon/anacoin/pkg/blockchain"
 	"github.com/anakreon/anacoin/pkg/mempool"
@@ -19,7 +18,6 @@ var privateKey *ecdsa.PrivateKey
 
 func Initialize() {
 	generateKeys()
-	addTransactionX()
 }
 
 func generateKeys() {
@@ -72,39 +70,39 @@ func TestSign() {
 	fmt.Println("signature verified:", valid)
 }
 
-func addTransactionX() {
-	transaction := buildTransaction()
+func AddTransactionX() {
+	block := blockchain.GetLastBlock()
+	sourceTransaction := block.Transactions[0]
+	transaction := buildTransaction(sourceTransaction.CalculateHash())
 	mempool.AddTransaction(transaction)
 }
 
-func buildTransaction() blockchain.Transaction {
-	out := []blockchain.TransactionOutput{
-		blockchain.TransactionOutput{
-			Value:        1000,
-			ScriptPubKey: GetPublicAddress(),
+func buildTransaction(txid string) blockchain.Transaction {
+	transaction := blockchain.Transaction{
+		In: []blockchain.TransactionInput{
+			blockchain.TransactionInput{
+				TxID:    txid,
+				TxIndex: 0,
+			},
+		},
+		Out: []blockchain.TransactionOutput{
+			blockchain.TransactionOutput{
+				Value:        1000,
+				ScriptPubKey: GetPublicAddress(),
+			},
 		},
 	}
-	return blockchain.Transaction{
-		In: blockchain.TransactionInput{
-			ScriptSig: buildSignature(out),
-		},
-		Out: out,
-	}
+	transaction.In[0].ScriptSig = buildSignature(transaction.CalculateHash())
+	return transaction
 }
 
-func buildSignature(out []blockchain.TransactionOutput) string {
-	signedHash := signTransactionHash(out)
+func buildSignature(transactionHash string) string {
+	signedHash := signTransactionHash(transactionHash)
 	publicKeyString := getPublicKeyString()
 	return signedHash + " " + publicKeyString
 }
 
-func signTransactionHash(out []blockchain.TransactionOutput) string {
-	hasher := sha256.New()
-	for _, transaction := range out {
-		value := strconv.FormatFloat(transaction.Value, 'f', 6, 64) + transaction.ScriptPubKey
-		hasher.Write([]byte(value))
-	}
-	hashBytes := hasher.Sum(nil)
-	r, s, _ := ecdsa.Sign(rand.Reader, privateKey, hashBytes[:])
+func signTransactionHash(transactionHash string) string {
+	r, s, _ := ecdsa.Sign(rand.Reader, privateKey, []byte(transactionHash))
 	return r.Text(16) + "," + s.Text(16)
 }
