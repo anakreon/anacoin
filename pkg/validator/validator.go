@@ -7,28 +7,26 @@ import (
 	"github.com/anakreon/anacoin/pkg/blockchain"
 )
 
-func IsValidBlock(block blockchain.Block, previousBlockHash string) bool {
-	hasValidPreviousHash := previousBlockHash == block.PreviousHash
+func IsValidBlock(block blockchain.Block) bool {
 	hasValidCalculatedHash := block.CalculateHash() == block.Hash
-	hasValidHashAsPerTarget := IsValidTargetHash(block.Hash)
-	return hasValidPreviousHash &&
-		hasValidCalculatedHash &&
+	hasValidHashAsPerTarget := IsValidHashAsPerTarget(block.Hash, block.Target)
+	return hasValidCalculatedHash &&
 		hasValidHashAsPerTarget &&
-		hasCoinbaseTransaction(block) &&
-		areTransactionsValid(block)
+		hasCoinbaseTransaction(&block) &&
+		areTransactionsValid(&block)
 }
 
-func hasCoinbaseTransaction(block Block) bool {
+func hasCoinbaseTransaction(block *blockchain.Block) bool {
 	return len(block.Transactions[0].In) == 1 &&
 		block.Transactions[0].In[0].ScriptSig == "COINBASE" &&
 		len(block.Transactions[0].Out) == 1 &&
 		block.Transactions[0].Out[0].Value == 1
 }
 
-func areTransactionsValid(block Block) bool {
+func areTransactionsValid(block *blockchain.Block) bool {
 	areValid := true
 	for i := 1; i < len(block.Transactions); i++ {
-		if !isTransactionValid() {
+		if !IsTransactionValid() {
 			areValid = false
 			break
 		}
@@ -36,7 +34,7 @@ func areTransactionsValid(block Block) bool {
 	return areValid
 }
 
-func isTransactionValid() bool {
+func IsTransactionValid() bool {
 	return true
 }
 

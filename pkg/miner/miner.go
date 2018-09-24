@@ -6,7 +6,10 @@ import (
 	"time"
 
 	"github.com/anakreon/anacoin/pkg/blockchain"
+	"github.com/anakreon/anacoin/pkg/connector"
 	"github.com/anakreon/anacoin/pkg/mempool"
+	"github.com/anakreon/anacoin/pkg/storage"
+	"github.com/anakreon/anacoin/pkg/validator"
 )
 
 var shouldMine = false
@@ -25,13 +28,14 @@ func mine(pubKey string) {
 	for shouldMine {
 		candidateBlock := buildCandidateBlock(pubKey)
 		minedBlock := mineBlock(candidateBlock)
-		blockchain.AddToChain(minedBlock)
+		storage.AddBlock(minedBlock)
+		connector.BroadcastNewBlock(minedBlock)
 		mempool.Clear()
 	}
 }
 
 func buildCandidateBlock(pubKey string) blockchain.Block {
-	previousBlock := blockchain.GetLastBlock()
+	previousBlock := storage.GetLastBlock()
 	candidateBlock := blockchain.Block{
 		Index:        previousBlock.Index + 1,
 		Timestamp:    time.Now().Unix(),
@@ -51,7 +55,7 @@ func mineBlock(block blockchain.Block) blockchain.Block {
 }
 
 func shouldContinueMining(block blockchain.Block) bool {
-	return shouldMine && !block.IsValidTargetHash()
+	return shouldMine && !validator.IsValidHashAsPerTarget(block.Hash, block.Target)
 }
 
 func generateRandomHex() string {

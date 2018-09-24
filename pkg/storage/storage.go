@@ -19,7 +19,7 @@ func generateGenesisBlock() *blockchain.Block {
 }
 
 func AddBlock(newBlock blockchain.Block) {
-	previousBlock := findBlockByHash(newBlock.PreviousHash)
+	previousBlock := FindBlockByHash(newBlock.PreviousHash)
 	if previousBlock != nil {
 		newBlock.PreviousBlock = previousBlock
 		if isLastElementOfChain(previousBlock) {
@@ -52,7 +52,7 @@ func addNewForkTail(block *blockchain.Block) {
 	forkTails = append(forkTails, block)
 }
 
-func findBlockByHash(hash string) (block *blockchain.Block) {
+func FindBlockByHash(hash string) (block *blockchain.Block) {
 Mainloop:
 	for _, forkTail := range forkTails {
 		for iterator := forkTail; isPreviousBlockLinkedToMe(iterator); iterator = iterator.PreviousBlock {
@@ -67,4 +67,8 @@ Mainloop:
 
 func isPreviousBlockLinkedToMe(block *blockchain.Block) bool {
 	return block.PreviousBlock != nil && block.PreviousBlock.NextBlock == block
+}
+
+func GetLastBlock() blockchain.Block {
+	return *tail
 }

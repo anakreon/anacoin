@@ -13,7 +13,7 @@ type Transaction struct {
 
 type TransactionInput struct {
 	TransactionID    string
-	TransactionIndex int8
+	TransactionIndex uint8
 	ScriptSig        string
 }
 

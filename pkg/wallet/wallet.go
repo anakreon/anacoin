@@ -5,13 +5,13 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
-	"encoding/hex"
 	"fmt"
 
 	"github.com/anakreon/anacoin/pkg/blockchain"
+	"github.com/anakreon/anacoin/pkg/connector"
+	"github.com/anakreon/anacoin/pkg/hasher"
 	"github.com/anakreon/anacoin/pkg/mempool"
-	"golang.org/x/crypto/ripemd160"
+	"github.com/anakreon/anacoin/pkg/storage"
 )
 
 var privateKey *ecdsa.PrivateKey
@@ -28,32 +28,8 @@ func generateKeys() {
 
 func GetPublicAddress() string {
 	publicKey := getPublicKeyString()
-	base58Address := getDoubleHashBase64Key(publicKey)
+	base58Address := hasher.GetDoubleHashBase64(publicKey)
 	return base58Address
-}
-
-func getDoubleHashBase64Key(key string) string {
-	sha256Hash := getSha256Hash(key)
-	ripemd160Hash := getRipemd160Hash(sha256Hash)
-	return getBase64String(ripemd160Hash)
-}
-
-func getSha256Hash(inputString string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(inputString))
-	hashBytes := hasher.Sum(nil)
-	return hex.EncodeToString(hashBytes[:])
-}
-
-func getRipemd160Hash(inputString string) string {
-	hasher := ripemd160.New()
-	hasher.Write([]byte(inputString))
-	hashBytes := hasher.Sum(nil)
-	return hex.EncodeToString(hashBytes[:])
-}
-
-func getBase64String(inputString string) string {
-	return base64.StdEncoding.EncodeToString([]byte(inputString))
 }
 
 func getPublicKeyString() string {
@@ -71,18 +47,19 @@ func TestSign() {
 }
 
 func AddTransactionX() {
-	block := blockchain.GetLastBlock()
+	block := storage.GetLastBlock()
 	sourceTransaction := block.Transactions[0]
 	transaction := buildTransaction(sourceTransaction.CalculateHash())
 	mempool.AddTransaction(transaction)
+	connector.BroadcastNewTransaction(transaction)
 }
 
 func buildTransaction(txid string) blockchain.Transaction {
 	transaction := blockchain.Transaction{
 		In: []blockchain.TransactionInput{
 			blockchain.TransactionInput{
-				TxID:    txid,
-				TxIndex: 0,
+				TransactionID:    txid,
+				TransactionIndex: 0,
 			},
 		},
 		Out: []blockchain.TransactionOutput{
