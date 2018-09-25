@@ -22,7 +22,7 @@ func Connect(peer Peer) Peer {
 }
 
 func ReceiveBlock(block blockchain.Block) {
-	if validator.IsValidBlock(block) {
+	if validator.IsValidBlock(&block) {
 		storage.AddBlock(block)
 	}
 }
