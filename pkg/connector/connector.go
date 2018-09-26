@@ -3,11 +3,17 @@ package connector
 import (
 	"github.com/anakreon/anacoin/pkg/blockchain"
 	"github.com/anakreon/anacoin/pkg/mempool"
-	"github.com/anakreon/anacoin/pkg/storage"
 	"github.com/anakreon/anacoin/pkg/validator"
 )
 
-func InitiateConnectionWithPeers() {
+var storage *blockchain.Blockchain
+
+func Initialize(storageInstance *blockchain.Blockchain) {
+	storage = storageInstance
+	initiateConnectionWithPeers()
+}
+
+func initiateConnectionWithPeers() {
 	/* for each connection
 	receiver := Receiver{}
 	peer := CONNECTION.connector.Connect(receiver)

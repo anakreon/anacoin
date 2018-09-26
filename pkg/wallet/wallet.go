@@ -11,12 +11,13 @@ import (
 	"github.com/anakreon/anacoin/pkg/connector"
 	"github.com/anakreon/anacoin/pkg/hasher"
 	"github.com/anakreon/anacoin/pkg/mempool"
-	"github.com/anakreon/anacoin/pkg/storage"
 )
 
 var privateKey *ecdsa.PrivateKey
+var storage *blockchain.Blockchain
 
-func Initialize() {
+func Initialize(storageInstance *blockchain.Blockchain) {
+	storage = storageInstance
 	generateKeys()
 }
 

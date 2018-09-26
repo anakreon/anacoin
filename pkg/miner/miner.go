@@ -8,12 +8,17 @@ import (
 	"github.com/anakreon/anacoin/pkg/blockchain"
 	"github.com/anakreon/anacoin/pkg/connector"
 	"github.com/anakreon/anacoin/pkg/mempool"
-	"github.com/anakreon/anacoin/pkg/storage"
 	"github.com/anakreon/anacoin/pkg/validator"
 )
 
 var shouldMine = false
 var coinbaseValue float64 = 1
+
+var storage *blockchain.Blockchain
+
+func Initialize(storageInstance *blockchain.Blockchain) {
+	storage = storageInstance
+}
 
 func StartMining(pubKey string) {
 	shouldMine = true

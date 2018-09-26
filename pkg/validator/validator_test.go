@@ -2,8 +2,6 @@ package validator
 
 import (
 	"testing"
-
-	"github.com/anakreon/anacoin/pkg/blockchain"
 )
 
 func TestIsValidBlock(t *testing.T) {
