@@ -1,7 +1,7 @@
 package blockchain
 
 import (
-	"github.com/anakreon/anacoin/pkg/hasher"
+	"github.com/anakreon/anacoin/internal/hasher"
 )
 
 type Block struct {

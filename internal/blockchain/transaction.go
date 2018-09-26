@@ -3,7 +3,7 @@ package blockchain
 import (
 	"strconv"
 
-	"github.com/anakreon/anacoin/pkg/hasher"
+	"github.com/anakreon/anacoin/internal/hasher"
 )
 
 type Transaction struct {
@@ -18,7 +18,7 @@ type TransactionInput struct {
 }
 
 type TransactionOutput struct {
-	Value        float64
+	Value        uint64
 	ScriptPubKey string
 }
 
@@ -30,7 +30,7 @@ func (transaction Transaction) CalculateHash() string {
 	}
 
 	for _, output := range transaction.Out {
-		outValue := output.ScriptPubKey + strconv.FormatFloat(output.Value, 'f', 6, 64) + outHash
+		outValue := output.ScriptPubKey + strconv.FormatUint(output.Value, 64) + outHash
 		outHash = hasher.GetDoubleHashBase64(outValue)
 	}
 	return hasher.GetDoubleHashBase64(inHash + outHash)

@@ -1,6 +1,6 @@
 package connector
 
-import "github.com/anakreon/anacoin/pkg/blockchain"
+import "github.com/anakreon/anacoin/internal/blockchain"
 
 type Peer interface {
 	SendBlock(block blockchain.Block)

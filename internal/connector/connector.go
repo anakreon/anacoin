@@ -1,15 +1,17 @@
 package connector
 
 import (
-	"github.com/anakreon/anacoin/pkg/blockchain"
-	"github.com/anakreon/anacoin/pkg/mempool"
-	"github.com/anakreon/anacoin/pkg/validator"
+	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/mempool"
+	"github.com/anakreon/anacoin/internal/validator"
 )
 
 var storage *blockchain.Blockchain
+var unconfirmedTransactions *mempool.UnconfirmedTransactions
 
-func Initialize(storageInstance *blockchain.Blockchain) {
+func Initialize(storageInstance *blockchain.Blockchain, unconfirmedTransactionsInstance *mempool.UnconfirmedTransactions) {
 	storage = storageInstance
+	unconfirmedTransactions = unconfirmedTransactionsInstance
 	initiateConnectionWithPeers()
 }
 
@@ -35,7 +37,7 @@ func ReceiveBlock(block blockchain.Block) {
 
 func ReceiveTransaction(transaction blockchain.Transaction) {
 	if validator.IsTransactionValid() {
-		mempool.AddTransaction(transaction)
+		unconfirmedTransactions.AddTransaction(transaction)
 	}
 }
 

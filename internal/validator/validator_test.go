@@ -2,20 +2,30 @@ package validator
 
 import (
 	"testing"
+
+	"github.com/anakreon/anacoin/internal/blockchain"
 )
 
 func TestIsValidBlock(t *testing.T) {
 	validBlock := buildValidBlock()
-	t.Run("is valid", testIsValidBlock(&validBlock, true))
-
 	invalidNonce := buildBlockInvalidNonce()
-	t.Run("invalid nonce", testIsValidBlock(&invalidNonce, false))
-
 	invalidHash := buildBlockInvalidHash()
-	t.Run("invalid hash", testIsValidBlock(&invalidHash, false))
-
 	noCoinbaseTransaction := buildBlockNoCoinbaseTransaction()
-	t.Run("no coinbase transaction", testIsValidBlock(&noCoinbaseTransaction, false))
+
+	var isValidTests = []struct {
+		label    string
+		block    *blockchain.Block
+		expected bool
+	}{
+		{"is valid", &validBlock, true},
+		{"invalid once", &invalidNonce, false},
+		{"invalid hash", &invalidHash, false},
+		{"no coinbase transaction", &noCoinbaseTransaction, false},
+	}
+
+	for _, test := range isValidTests {
+		t.Run(test.label, testIsValidBlock(test.block, test.expected))
+	}
 }
 
 func buildBlockInvalidNonce() blockchain.Block {

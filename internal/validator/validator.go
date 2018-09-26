@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/anakreon/anacoin/pkg/blockchain"
+	"github.com/anakreon/anacoin/internal/blockchain"
 )
 
 func IsValidBlock(block *blockchain.Block) bool {
