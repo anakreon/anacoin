@@ -6,49 +6,62 @@ import (
 	"github.com/anakreon/anacoin/internal/validator"
 )
 
-var storage *blockchain.Blockchain
-var unconfirmedTransactions *mempool.UnconfirmedTransactions
-
-func Initialize(storageInstance *blockchain.Blockchain, unconfirmedTransactionsInstance *mempool.UnconfirmedTransactions) {
-	storage = storageInstance
-	unconfirmedTransactions = unconfirmedTransactionsInstance
-	initiateConnectionWithPeers()
+type Connection interface {
+	GetConnector() *Connector
 }
 
-func initiateConnectionWithPeers() {
-	/* for each connection
-	receiver := Receiver{}
-	peer := CONNECTION.connector.Connect(receiver)
-	AddPeer(peer, receiver)
-	*/
+type Connector struct {
+	storage                 *blockchain.Blockchain
+	unconfirmedTransactions *mempool.UnconfirmedTransactions
+	peerReceivers           PeerReceivers
 }
 
-func Connect(peer Peer) Peer {
-	receiver := Receiver{}
-	AddPeer(peer, receiver)
+func NewConnector(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions) *Connector {
+	connector := Connector{
+		storage:                 storage,
+		unconfirmedTransactions: unconfirmedTransactions,
+	}
+	connector.peerReceivers = initiateConnectionWithPeers(&connector)
+	return &connector
+}
+
+func initiateConnectionWithPeers(connector *Connector) PeerReceivers {
+	peerReceivers := PeerReceivers{}
+	connections := []Connection{}
+	for _, connection := range connections {
+		receiver := Receiver{connector}
+		peer := connection.GetConnector().Connect(receiver)
+		peerReceivers.AddPeer(peer, receiver)
+	}
+	return peerReceivers
+}
+
+func (connector *Connector) Connect(peer Peer) Peer {
+	receiver := Receiver{connector}
+	connector.peerReceivers.AddPeer(peer, receiver)
 	return receiver
 }
 
-func ReceiveBlock(block blockchain.Block) {
+func (connector *Connector) ReceiveBlock(block blockchain.Block) {
 	if validator.IsValidBlock(&block) {
-		storage.AddBlock(block)
+		connector.storage.AddBlock(block)
 	}
 }
 
-func ReceiveTransaction(transaction blockchain.Transaction) {
+func (connector *Connector) ReceiveTransaction(transaction blockchain.Transaction) {
 	if validator.IsTransactionValid() {
-		unconfirmedTransactions.AddTransaction(transaction)
+		connector.unconfirmedTransactions.AddTransaction(transaction)
 	}
 }
 
-func BroadcastNewBlock(block blockchain.Block) {
-	for _, peer := range peers {
-		peer.Peer.SendBlock(block)
+func (connector *Connector) BroadcastNewBlock(block blockchain.Block) {
+	for _, peerReceiver := range connector.peerReceivers {
+		peerReceiver.Peer.SendBlock(block)
 	}
 }
 
-func BroadcastNewTransaction(transaction blockchain.Transaction) {
-	for _, peer := range peers {
-		peer.Peer.SendTransaction(transaction)
+func (connector *Connector) BroadcastNewTransaction(transaction blockchain.Transaction) {
+	for _, peerReceiver := range connector.peerReceivers {
+		peerReceiver.Peer.SendTransaction(transaction)
 	}
 }

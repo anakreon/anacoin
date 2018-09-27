@@ -12,16 +12,18 @@ import (
 )
 
 type Wallet struct {
-	privateKey              *ecdsa.PrivateKey
 	storage                 *blockchain.Blockchain
 	unconfirmedTransactions *mempool.UnconfirmedTransactions
+	connector               *connector.Connector
+	privateKey              *ecdsa.PrivateKey
 }
 
-func NewWallet(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions) Wallet {
+func NewWallet(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions, connector *connector.Connector) Wallet {
 	return Wallet{
 		privateKey:              generatePrivateKey(),
 		storage:                 storage,
 		unconfirmedTransactions: unconfirmedTransactions,
+		connector:               connector,
 	}
 }
 
@@ -44,7 +46,7 @@ func (wallet *Wallet) getPublicKeyString() string {
 func (wallet *Wallet) AddNewTransaction(value uint64) {
 	transaction := wallet.createTransaction(value)
 	wallet.unconfirmedTransactions.AddTransaction(transaction)
-	connector.BroadcastNewTransaction(transaction)
+	wallet.connector.BroadcastNewTransaction(transaction)
 }
 
 /*func TestSign() {

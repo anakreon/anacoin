@@ -8,10 +8,6 @@ func (transactions *UnconfirmedTransactions) AddTransaction(transaction blockcha
 	*transactions = append(*transactions, transaction)
 }
 
-func (transactions *UnconfirmedTransactions) GetAllTransactions() *UnconfirmedTransactions {
-	return transactions
-}
-
 func (transactions *UnconfirmedTransactions) Clear() {
 	*transactions = []blockchain.Transaction{}
 }

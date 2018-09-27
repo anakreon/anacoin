@@ -7,14 +7,16 @@ type Peer interface {
 	SendTransaction(transaction blockchain.Transaction)
 }
 
-type Receiver struct{}
+type Receiver struct {
+	connector *Connector
+}
 
 func (receiver Receiver) SendBlock(block blockchain.Block) {
-	ReceiveBlock(block)
+	receiver.connector.ReceiveBlock(block)
 	//else remove peer
 }
 
 func (receiver Receiver) SendTransaction(transaction blockchain.Transaction) {
-	ReceiveTransaction(transaction)
+	receiver.connector.ReceiveTransaction(transaction)
 	//else remove peer
 }

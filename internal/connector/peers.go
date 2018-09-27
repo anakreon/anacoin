@@ -1,24 +1,24 @@
 package connector
 
-var peers = []PeerReceiver{}
-
 type PeerReceiver struct {
 	Peer     Peer
 	Receiver Peer
 }
 
-func AddPeer(peer Peer, receiver Peer) {
+type PeerReceivers []PeerReceiver
+
+func (peerReceivers *PeerReceivers) AddPeer(peer Peer, receiver Peer) {
 	peerReceiver := PeerReceiver{peer, receiver}
-	peers = append(peers, peerReceiver)
+	*peerReceivers = append(*peerReceivers, peerReceiver)
 }
 
-func RemovePeer(peer *Peer) {
-	index := findPeerIndex(peer)
-	removePeerWithIndex(index)
+func (peerReceivers *PeerReceivers) RemovePeer(peer *Peer) {
+	index := peerReceivers.findPeerIndex(peer)
+	peerReceivers.removePeerWithIndex(index)
 }
 
-func findPeerIndex(peer *Peer) (index int) {
-	for i, iterator := range peers {
+func (peerReceivers *PeerReceivers) findPeerIndex(peer *Peer) (index int) {
+	for i, iterator := range *peerReceivers {
 		if &iterator.Peer == peer {
 			index = i
 			break
@@ -27,7 +27,7 @@ func findPeerIndex(peer *Peer) (index int) {
 	return
 }
 
-func removePeerWithIndex(index int) {
-	peers[index] = peers[len(peers)-1]
-	peers = peers[:len(peers)-1]
+func (peerReceivers *PeerReceivers) removePeerWithIndex(index int) {
+	(*peerReceivers)[index] = (*peerReceivers)[len(*peerReceivers)-1]
+	*peerReceivers = (*peerReceivers)[:len(*peerReceivers)-1]
 }

@@ -11,7 +11,7 @@ type Blockchain struct {
 }
 
 func NewBlockchain() *Blockchain {
-	head := generateGenesisBlock()
+	head := createGenesisBlock()
 	return &Blockchain{
 		head:      head,
 		tail:      head,
@@ -19,7 +19,7 @@ func NewBlockchain() *Blockchain {
 	}
 }
 
-func generateGenesisBlock() *Block {
+func createGenesisBlock() *Block {
 	genesisBlock := Block{
 		Index:     0,
 		Timestamp: 0,
@@ -34,12 +34,16 @@ func (blockchain *Blockchain) AddBlock(newBlock Block) {
 	previousBlock := blockchain.findBlockByHash(newBlock.PreviousHash)
 	if previousBlock != nil {
 		newBlock.PreviousBlock = previousBlock
-		if previousBlock.HasNextBlock() {
-			blockchain.addNewForkTail(&newBlock)
-		} else {
-			previousBlock.NextBlock = &newBlock
-			blockchain.switchToMainChainIfLonger(&newBlock)
-		}
+		blockchain.linkNewBlock(previousBlock, &newBlock)
+	}
+}
+
+func (blockchain *Blockchain) linkNewBlock(block *Block, newBlock *Block) {
+	if block.HasNextBlock() {
+		blockchain.addNewForkTail(newBlock)
+	} else {
+		block.NextBlock = newBlock
+		blockchain.switchToMainChainIfLonger(newBlock)
 	}
 }
 

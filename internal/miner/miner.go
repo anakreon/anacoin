@@ -17,23 +17,29 @@ type storage interface {
 }
 
 type Miner struct {
-	shouldMine bool
+	storage                 storage
+	unconfirmedTransactions *mempool.UnconfirmedTransactions
+	connector               *connector.Connector
+	shouldMine              bool
 }
 
-func NewMiner() Miner {
+func NewMiner(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions, connector *connector.Connector) Miner {
 	return Miner{
-		shouldMine: false,
+		storage:                 storage,
+		unconfirmedTransactions: unconfirmedTransactions,
+		connector:               connector,
+		shouldMine:              false,
 	}
 }
 
-func (miner *Miner) Mine(pubKey string, storage storage, unconfirmedTransactions *mempool.UnconfirmedTransactions) {
+func (miner *Miner) Mine(pubKey string) {
 	miner.shouldMine = true
 	for miner.shouldMine {
-		candidateBlock := buildCandidateBlock(pubKey, storage.GetLastBlock(), unconfirmedTransactions)
+		candidateBlock := miner.buildCandidateBlock(pubKey, miner.storage.GetLastBlock())
 		minedBlock := miner.mineBlock(candidateBlock)
-		storage.AddBlock(minedBlock)
-		connector.BroadcastNewBlock(minedBlock)
-		unconfirmedTransactions.Clear()
+		miner.storage.AddBlock(minedBlock)
+		miner.connector.BroadcastNewBlock(minedBlock)
+		miner.unconfirmedTransactions.Clear()
 	}
 }
 
@@ -41,13 +47,13 @@ func (miner *Miner) Stop() {
 	miner.shouldMine = false
 }
 
-func buildCandidateBlock(pubKey string, lastBlock blockchain.Block, unconfirmedTransactions *mempool.UnconfirmedTransactions) blockchain.Block {
+func (miner *Miner) buildCandidateBlock(pubKey string, lastBlock blockchain.Block) blockchain.Block {
 	candidateBlock := blockchain.Block{
 		Index:        lastBlock.Index + 1,
 		Timestamp:    time.Now().Unix(),
 		PreviousHash: lastBlock.Hash,
 		Target:       5,
-		Transactions: buildTransactions(pubKey, unconfirmedTransactions),
+		Transactions: miner.buildTransactions(pubKey),
 	}
 	return candidateBlock
 }
@@ -69,12 +75,11 @@ func generateRandomHex() string {
 	return strconv.FormatInt(randomInt, 16)
 }
 
-func buildTransactions(pubKey string, unconfirmedTransactions *mempool.UnconfirmedTransactions) []blockchain.Transaction {
-	mempoolTransactions := unconfirmedTransactions.GetAllTransactions()
+func (miner *Miner) buildTransactions(pubKey string) []blockchain.Transaction {
 	coinbaseTransactions := []blockchain.Transaction{
 		buildCoinbaseTransaction(pubKey),
 	}
-	return append(coinbaseTransactions, *mempoolTransactions...)
+	return append(coinbaseTransactions, *miner.unconfirmedTransactions...)
 }
 
 func buildCoinbaseTransaction(pubKey string) blockchain.Transaction {
