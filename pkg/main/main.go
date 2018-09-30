@@ -9,6 +9,12 @@ import (
 )
 
 func main() {
+	channel := make(chan string, 0)
+	run()
+	<-channel
+}
+
+func run() {
 	storage := blockchain.NewBlockchain()
 	unconfirmedTransactions := mempool.NewUnconfirmedTransactions()
 	connector := connector.NewConnector(storage, &unconfirmedTransactions)
