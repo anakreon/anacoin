@@ -15,5 +15,5 @@ func main() {
 	wallet := wallet.NewWallet(storage, &unconfirmedTransactions, connector)
 	publicAddress := wallet.GetPublicAddress()
 	miner := miner.NewMiner(storage, &unconfirmedTransactions, connector)
-	miner.Mine(publicAddress)
+	go miner.Mine(publicAddress)
 }

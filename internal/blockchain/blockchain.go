@@ -2,12 +2,14 @@ package blockchain
 
 import (
 	"fmt"
+	"sync"
 )
 
 type Blockchain struct {
 	head      *Block
 	tail      *Block
 	forkTails []*Block
+	mutex     *sync.Mutex
 }
 
 func NewBlockchain() *Blockchain {
@@ -16,6 +18,7 @@ func NewBlockchain() *Blockchain {
 		head:      head,
 		tail:      head,
 		forkTails: []*Block{head},
+		mutex:     &sync.Mutex{},
 	}
 }
 
@@ -31,11 +34,13 @@ func createGenesisBlock() *Block {
 
 func (blockchain *Blockchain) AddBlock(newBlock Block) {
 	fmt.Println(newBlock)
+	blockchain.mutex.Lock()
 	previousBlock := blockchain.findBlockByHash(newBlock.PreviousHash)
 	if previousBlock != nil {
 		newBlock.PreviousBlock = previousBlock
 		blockchain.linkNewBlock(previousBlock, &newBlock)
 	}
+	blockchain.mutex.Unlock()
 }
 
 func (blockchain *Blockchain) linkNewBlock(block *Block, newBlock *Block) {
