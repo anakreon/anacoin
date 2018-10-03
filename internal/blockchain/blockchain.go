@@ -1,7 +1,7 @@
 package blockchain
 
 import (
-	"fmt"
+	"log"
 	"sync"
 )
 
@@ -33,7 +33,7 @@ func createGenesisBlock() *Block {
 }
 
 func (blockchain *Blockchain) AddBlock(newBlock Block) {
-	fmt.Println(newBlock)
+	log.Println(newBlock)
 	blockchain.mutex.Lock()
 	previousBlock := blockchain.findBlockByHash(newBlock.PreviousHash)
 	if previousBlock != nil {

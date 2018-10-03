@@ -7,13 +7,13 @@ import (
 	"github.com/anakreon/anacoin/internal/blockchain"
 )
 
-func (wallet *Wallet) createTransaction(value uint64) blockchain.Transaction {
+func (wallet *Wallet) createTransaction(targetAddress string, value uint64) blockchain.Transaction {
 	lastBlock := wallet.storage.GetLastBlock()
 	sourceTransaction := lastBlock.Transactions[0]
-	return wallet.buildTransaction(sourceTransaction.CalculateHash())
+	return wallet.buildTransaction(targetAddress, value, sourceTransaction.CalculateHash())
 }
 
-func (wallet *Wallet) buildTransaction(txid string) blockchain.Transaction {
+func (wallet *Wallet) buildTransaction(targetAddress string, value uint64, txid string) blockchain.Transaction {
 	transaction := blockchain.Transaction{
 		In: []blockchain.TransactionInput{
 			blockchain.TransactionInput{
@@ -23,8 +23,8 @@ func (wallet *Wallet) buildTransaction(txid string) blockchain.Transaction {
 		},
 		Out: []blockchain.TransactionOutput{
 			blockchain.TransactionOutput{
-				Value:        1000,
-				ScriptPubKey: wallet.GetPublicAddress(),
+				Value:        value,
+				ScriptPubKey: targetAddress,
 			},
 		},
 	}

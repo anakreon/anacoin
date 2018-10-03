@@ -43,10 +43,14 @@ func (wallet *Wallet) getPublicKeyString() string {
 	return wallet.privateKey.PublicKey.X.Text(16) + "," + wallet.privateKey.PublicKey.Y.Text(16)
 }
 
-func (wallet *Wallet) AddNewTransaction(value uint64) {
-	transaction := wallet.createTransaction(value)
+func (wallet *Wallet) AddTransaction(targetAddress string, value uint64) {
+	transaction := wallet.createTransaction(targetAddress, value)
 	wallet.unconfirmedTransactions.AddTransaction(transaction)
 	wallet.connector.BroadcastNewTransaction(transaction)
+}
+
+func (wallet *Wallet) GetUnspentValue() uint64 {
+	return 0
 }
 
 /*func TestSign() {

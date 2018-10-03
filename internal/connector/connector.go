@@ -16,18 +16,17 @@ type Connector struct {
 	peerReceivers           PeerReceivers
 }
 
-func NewConnector(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions) *Connector {
+func NewConnector(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions, connections []Connection) *Connector {
 	connector := Connector{
 		storage:                 storage,
 		unconfirmedTransactions: unconfirmedTransactions,
 	}
-	connector.peerReceivers = initiateConnectionWithPeers(&connector)
+	connector.peerReceivers = initiateConnectionWithPeers(&connector, connections)
 	return &connector
 }
 
-func initiateConnectionWithPeers(connector *Connector) PeerReceivers {
+func initiateConnectionWithPeers(connector *Connector, connections []Connection) PeerReceivers {
 	peerReceivers := PeerReceivers{}
-	connections := []Connection{}
 	for _, connection := range connections {
 		receiver := Receiver{connector}
 		peer := connection.GetConnector().Connect(receiver)
