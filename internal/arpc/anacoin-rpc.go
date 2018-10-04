@@ -1,4 +1,4 @@
-package rpc
+package arpc
 
 import (
 	"github.com/anakreon/anacoin/internal/miner"

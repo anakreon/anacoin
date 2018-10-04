@@ -1,4 +1,4 @@
-package rpc
+package arpc
 
 import (
 	"github.com/anakreon/anacoin/internal/blockchain"
@@ -9,12 +9,22 @@ type ConnectorRpc struct {
 	connector *connector.Connector
 }
 
+type ConnectArgs struct {
+	Peer connector.Peer
+}
+
 type ReceiveBlockArgs struct {
 	Block blockchain.Block
 }
 
 type ReceiveTransactionArgs struct {
 	Transaction blockchain.Transaction
+}
+
+func NewConnectorRpc(connector *connector.Connector) ConnectorRpc {
+	return ConnectorRpc{
+		connector: connector,
+	}
 }
 
 func (rpc *ConnectorRpc) ReceiveBlock(args *ReceiveBlockArgs, _ *bool) error {
