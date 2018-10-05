@@ -8,9 +8,9 @@ import (
 )
 
 func (wallet *Wallet) createTransaction(targetAddress string, value uint64) blockchain.Transaction {
-	lastBlock := wallet.storage.GetLastBlock()
-	sourceTransaction := lastBlock.Transactions[0]
-	return wallet.buildTransaction(targetAddress, value, sourceTransaction.CalculateHash())
+	//lastBlock := wallet.storage.GetLastBlock()
+	//sourceTransaction := lastBlock.Transactions[0], sourceTransaction.CalculateHash()
+	return wallet.buildTransaction(targetAddress, value, "some hash")
 }
 
 func (wallet *Wallet) buildTransaction(targetAddress string, value uint64, txid string) blockchain.Transaction {

@@ -1,30 +1,50 @@
 package blockchain
 
 import (
+	"time"
+
 	"github.com/anakreon/anacoin/internal/hasher"
 )
 
 type Block struct {
-	PreviousBlock *Block
-	NextBlock     *Block
-	Index         int64
-	PreviousHash  string
-	Hash          string
-	Timestamp     int64
-	Transactions  []Transaction
-	Nonce         string
-	Target        int
+	previousHash string
+	hash         string
+	timestamp    int64
+	transactions []Transaction
+	nonce        string
+	target       int
 }
 
-func (block *Block) CalculateHash() string {
-	hashData := string(block.Timestamp) + block.PreviousHash + block.Nonce + string(block.Target)
+func NewBlock(previousHash string, transactions []Transaction) *Block {
+	return &Block{
+		timestamp:    time.Now().Unix(),
+		previousHash: previousHash,
+		target:       5,
+		transactions: transactions,
+	}
+}
+
+func (block Block) CalculateHash() string {
+	hashData := string(block.timestamp) + block.previousHash + block.nonce + string(block.target)
 	return hasher.GetSha256Hash(hashData)
 }
 
-func (block *Block) HasNextBlock() bool {
-	return block.NextBlock != nil
+func (block *Block) CalculateAndSetHash() {
+	block.hash = block.CalculateHash()
 }
 
-func (block *Block) IsLinkedWithPreviousBlock() bool {
-	return block.PreviousBlock != nil && block.PreviousBlock.NextBlock == block
+func (block Block) GetHash() string {
+	return block.hash
+}
+
+func (block Block) GetTarget() int {
+	return block.target
+}
+
+func (block Block) GetTransactions() []Transaction {
+	return block.transactions
+}
+
+func (block *Block) SetNonce(nonce string) {
+	block.nonce = nonce
 }

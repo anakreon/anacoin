@@ -3,85 +3,50 @@ package blockchain
 import (
 	"log"
 	"sync"
+
+	"github.com/anakreon/anacoin/internal/linkedlist"
 )
 
 type Blockchain struct {
-	head      *Block
-	tail      *Block
-	forkTails []*Block
-	mutex     *sync.Mutex
+	list  *linkedlist.List
+	mutex *sync.Mutex
 }
 
 func NewBlockchain() *Blockchain {
-	head := createGenesisBlock()
+	genesisBlock := createGenesisBlock()
 	return &Blockchain{
-		head:      head,
-		tail:      head,
-		forkTails: []*Block{head},
-		mutex:     &sync.Mutex{},
+		list:  linkedlist.NewList(genesisBlock),
+		mutex: &sync.Mutex{},
 	}
 }
 
 func createGenesisBlock() *Block {
 	genesisBlock := Block{
-		Index:     0,
-		Timestamp: 0,
-		Nonce:     "imGenesis",
+		timestamp: 0,
+		nonce:     "imGenesis",
 	}
-	genesisBlock.Hash = genesisBlock.CalculateHash()
+	genesisBlock.CalculateAndSetHash()
 	return &genesisBlock
 }
 
 func (blockchain *Blockchain) AddBlock(newBlock Block) {
 	log.Println(newBlock)
 	blockchain.mutex.Lock()
-	previousBlock := blockchain.findBlockByHash(newBlock.PreviousHash)
-	if previousBlock != nil {
-		newBlock.PreviousBlock = previousBlock
-		blockchain.linkNewBlock(previousBlock, &newBlock)
+	previousNode := blockchain.findNodeByBlockHash(newBlock.previousHash)
+	if previousNode != nil {
+		blockchain.list.CreateNewNodeAndLinkWithPreviousNode(previousNode, newBlock)
 	}
 	blockchain.mutex.Unlock()
 }
 
-func (blockchain *Blockchain) linkNewBlock(block *Block, newBlock *Block) {
-	if block.HasNextBlock() {
-		blockchain.addNewForkTail(newBlock)
-	} else {
-		block.NextBlock = newBlock
-		blockchain.switchToMainChainIfLonger(newBlock)
-	}
-}
-
-func (blockchain *Blockchain) switchToMainChainIfLonger(block *Block) {
-	if block.Index > blockchain.tail.Index {
-		blockchain.switchToMainChain(block)
-	}
-}
-
-func (blockchain *Blockchain) switchToMainChain(newTail *Block) {
-	blockchain.tail = newTail
-	for iterator := blockchain.tail; iterator != blockchain.head; iterator = iterator.PreviousBlock {
-		iterator.PreviousBlock.NextBlock = iterator
-	}
-}
-
-func (blockchain *Blockchain) addNewForkTail(block *Block) {
-	blockchain.forkTails = append(blockchain.forkTails, block)
-}
-
-func (blockchain *Blockchain) findBlockByHash(hash string) (block *Block) {
-Mainloop:
-	for _, forkTail := range blockchain.forkTails {
-		for iterator := forkTail; iterator.IsLinkedWithPreviousBlock(); iterator = iterator.PreviousBlock {
-			if iterator.Hash == hash {
-				block = iterator
-				break Mainloop
-			}
-		}
-	}
-	return
+func (blockchain *Blockchain) findNodeByBlockHash(hash string) *linkedlist.Node {
+	return blockchain.list.FindNodeInList(func(node *linkedlist.Node) bool {
+		nodeData := node.GetData()
+		return (*nodeData).GetHash() == hash
+	})
 }
 
 func (blockchain *Blockchain) GetLastBlock() Block {
-	return *blockchain.tail
+	block, _ := blockchain.list.GetMainTailData().(Block)
+	return block
 }

@@ -3,7 +3,6 @@ package miner
 import (
 	"math/rand"
 	"strconv"
-	"time"
 
 	"github.com/anakreon/anacoin/internal/blockchain"
 	"github.com/anakreon/anacoin/internal/connector"
@@ -48,26 +47,21 @@ func (miner *Miner) Stop() {
 }
 
 func (miner *Miner) buildCandidateBlock(pubKey string, lastBlock blockchain.Block) blockchain.Block {
-	candidateBlock := blockchain.Block{
-		Index:        lastBlock.Index + 1,
-		Timestamp:    time.Now().Unix(),
-		PreviousHash: lastBlock.Hash,
-		Target:       5,
-		Transactions: miner.buildTransactions(pubKey),
-	}
-	return candidateBlock
+	transactions := miner.buildTransactions(pubKey)
+	candidateBlock := blockchain.NewBlock(lastBlock.GetHash(), transactions)
+	return *candidateBlock
 }
 
 func (miner *Miner) mineBlock(block blockchain.Block) blockchain.Block {
 	for miner.shouldContinueMining(block) {
-		block.Nonce = generateRandomHex()
-		block.Hash = block.CalculateHash()
+		block.SetNonce(generateRandomHex())
+		block.CalculateAndSetHash()
 	}
 	return block
 }
 
 func (miner *Miner) shouldContinueMining(block blockchain.Block) bool {
-	return miner.shouldMine && !validator.IsValidHashAsPerTarget(block.Hash, block.Target)
+	return miner.shouldMine && !validator.IsValidHashAsPerTarget(block.GetHash(), block.GetTarget())
 }
 
 func generateRandomHex() string {
