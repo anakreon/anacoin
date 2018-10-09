@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/anakreon/anacoin/internal/blockchain"
-	"github.com/anakreon/anacoin/internal/connector"
 	"github.com/anakreon/anacoin/internal/mempool"
 	"github.com/anakreon/anacoin/internal/validator"
 )
@@ -15,14 +14,18 @@ type storage interface {
 	AddBlock(block blockchain.Block)
 }
 
+type connector interface {
+	BroadcastNewBlock(block blockchain.Block)
+}
+
 type Miner struct {
 	storage                 storage
 	unconfirmedTransactions *mempool.UnconfirmedTransactions
-	connector               *connector.Connector
+	connector               connector
 	shouldMine              bool
 }
 
-func NewMiner(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions, connector *connector.Connector) Miner {
+func NewMiner(storage storage, unconfirmedTransactions *mempool.UnconfirmedTransactions, connector connector) Miner {
 	return Miner{
 		storage:                 storage,
 		unconfirmedTransactions: unconfirmedTransactions,

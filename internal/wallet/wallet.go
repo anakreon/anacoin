@@ -6,19 +6,25 @@ import (
 	"crypto/rand"
 
 	"github.com/anakreon/anacoin/internal/blockchain"
-	"github.com/anakreon/anacoin/internal/connector"
 	"github.com/anakreon/anacoin/internal/hasher"
-	"github.com/anakreon/anacoin/internal/mempool"
 )
+
+type connector interface {
+	BroadcastNewTransaction(transaction blockchain.Transaction)
+}
+
+type unconfirmedTransactions interface {
+	AddTransaction(transaction blockchain.Transaction)
+}
 
 type Wallet struct {
 	storage                 *blockchain.Blockchain
-	unconfirmedTransactions *mempool.UnconfirmedTransactions
-	connector               *connector.Connector
+	unconfirmedTransactions unconfirmedTransactions
+	connector               connector
 	privateKey              *ecdsa.PrivateKey
 }
 
-func NewWallet(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions, connector *connector.Connector) Wallet {
+func NewWallet(storage *blockchain.Blockchain, unconfirmedTransactions unconfirmedTransactions, connector connector) Wallet {
 	return Wallet{
 		privateKey:              generatePrivateKey(),
 		storage:                 storage,

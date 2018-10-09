@@ -4,17 +4,24 @@ import (
 	"log"
 
 	"github.com/anakreon/anacoin/internal/blockchain"
-	"github.com/anakreon/anacoin/internal/mempool"
 	"github.com/anakreon/anacoin/internal/validator"
 )
 
+type storage interface {
+	AddBlock(block blockchain.Block)
+}
+
+type unconfirmedTransactions interface {
+	AddTransaction(transaction blockchain.Transaction)
+}
+
 type Connector struct {
-	storage                 *blockchain.Blockchain
-	unconfirmedTransactions *mempool.UnconfirmedTransactions
+	storage                 storage
+	unconfirmedTransactions unconfirmedTransactions
 	peers                   Peers
 }
 
-func NewConnector(storage *blockchain.Blockchain, unconfirmedTransactions *mempool.UnconfirmedTransactions) *Connector {
+func NewConnector(storage storage, unconfirmedTransactions unconfirmedTransactions) *Connector {
 	connector := Connector{
 		storage:                 storage,
 		unconfirmedTransactions: unconfirmedTransactions,

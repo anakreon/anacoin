@@ -1,13 +1,19 @@
 package arpc
 
-import (
-	"github.com/anakreon/anacoin/internal/miner"
-	"github.com/anakreon/anacoin/internal/wallet"
-)
+type miner interface {
+	Mine(publicAddress string)
+	Stop()
+}
+
+type wallet interface {
+	AddTransaction(targetAddress string, value uint64)
+	GetUnspentValue()
+	GetPublicAddress() string
+}
 
 type AnacoinRpc struct {
-	miner  *miner.Miner
-	wallet *wallet.Wallet
+	miner  miner
+	wallet wallet
 }
 
 type MineArgs struct {
@@ -19,7 +25,7 @@ type AddTransactionArgs struct {
 	Value         uint64
 }
 
-func NewAnacoinRpc(miner *miner.Miner, wallet *wallet.Wallet) AnacoinRpc {
+func NewAnacoinRpc(miner miner, wallet wallet) AnacoinRpc {
 	return AnacoinRpc{
 		miner:  miner,
 		wallet: wallet,
