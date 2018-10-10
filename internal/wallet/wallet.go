@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"math/big"
 
 	"github.com/anakreon/anacoin/internal/blockchain"
 	"github.com/anakreon/anacoin/internal/hasher"
@@ -46,7 +47,12 @@ func (wallet *Wallet) GetPublicAddress() string {
 }
 
 func (wallet *Wallet) getPublicKeyString() string {
-	return wallet.privateKey.PublicKey.X.Text(16) + "," + wallet.privateKey.PublicKey.Y.Text(16)
+	return convertRSBigIntToText(wallet.privateKey.PublicKey.X, wallet.privateKey.PublicKey.Y)
+}
+
+func buildPublicKey(x, y *big.Int) ecdsa.PublicKey {
+	curve := elliptic.P521()
+	return ecdsa.PublicKey{curve, x, y}
 }
 
 func (wallet *Wallet) AddTransaction(targetAddress string, value uint64) {

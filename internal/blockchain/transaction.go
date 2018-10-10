@@ -7,30 +7,31 @@ import (
 )
 
 type Transaction struct {
-	In  []TransactionInput
-	Out []TransactionOutput
+	in  []TransactionInput
+	out []TransactionOutput
 }
 
-type TransactionInput struct {
-	TransactionID    string
-	TransactionIndex uint8
-	ScriptSig        string
+func NewTransaction(inputs []TransactionInput, outputs []TransactionOutput) *Transaction {
+	return &Transaction{
+		in:  inputs,
+		out: outputs,
+	}
 }
 
-type TransactionOutput struct {
-	Value        uint64
-	ScriptPubKey string
-}
+/*func (transaction Transaction) buildTransactionInputFromOutput(transactionOutputIndex uint8, scriptSig string) TransactionInput {
+	transactionID := transaction.CalculateHash()
+	return newTransactionInput(transactionID, transactionOutputIndex, scriptSig)
+}*/
 
 func (transaction Transaction) CalculateHash() string {
 	inHash, outHash := "", ""
-	for _, input := range transaction.In {
-		inValue := input.TransactionID + string(input.TransactionIndex) + inHash
+	for _, input := range transaction.in {
+		inValue := input.transactionID + string(input.transactionIndex) + inHash
 		inHash = hasher.GetDoubleHashBase64(inValue)
 	}
 
-	for _, output := range transaction.Out {
-		outValue := output.ScriptPubKey + strconv.FormatUint(output.Value, 64) + outHash
+	for _, output := range transaction.out {
+		outValue := output.scriptPubKey + strconv.FormatUint(output.value, 64) + outHash
 		outHash = hasher.GetDoubleHashBase64(outValue)
 	}
 	return hasher.GetDoubleHashBase64(inHash + outHash)

@@ -50,3 +50,20 @@ func (blockchain *Blockchain) GetLastBlock() Block {
 	block, _ := blockchain.list.GetMainTailData().(Block)
 	return block
 }
+
+type CorrectTransactionCallback func(transaction Transaction) bool
+
+func (blockchain *Blockchain) FindTransactions(isCorrectTransaction CorrectTransactionCallback) []Transaction {
+	matchingTransactions := []Transaction{}
+	iterator := blockchain.list.Iterator()
+	for iterator.HasNext() {
+		block := iterator.Next().(Block)
+		transactions := block.GetTransactions()
+		for _, transaction := range transactions {
+			if isCorrectTransaction(transaction) {
+				matchingTransactions = append(matchingTransactions, transaction)
+			}
+		}
+	}
+	return matchingTransactions
+}
