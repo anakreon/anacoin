@@ -2,9 +2,6 @@ package wallet
 
 import (
 	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
-	"math/big"
 
 	"github.com/anakreon/anacoin/internal/blockchain"
 	"github.com/anakreon/anacoin/internal/hasher"
@@ -34,12 +31,6 @@ func NewWallet(storage *blockchain.Blockchain, unconfirmedTransactions unconfirm
 	}
 }
 
-func generatePrivateKey() *ecdsa.PrivateKey {
-	curve := elliptic.P521()
-	privateKey, _ := ecdsa.GenerateKey(curve, rand.Reader)
-	return privateKey
-}
-
 func (wallet *Wallet) GetPublicAddress() string {
 	publicKey := wallet.getPublicKeyString()
 	base58Address := hasher.GetDoubleHashBase64(publicKey)
@@ -48,11 +39,6 @@ func (wallet *Wallet) GetPublicAddress() string {
 
 func (wallet *Wallet) getPublicKeyString() string {
 	return convertRSBigIntToText(wallet.privateKey.PublicKey.X, wallet.privateKey.PublicKey.Y)
-}
-
-func buildPublicKey(x, y *big.Int) ecdsa.PublicKey {
-	curve := elliptic.P521()
-	return ecdsa.PublicKey{curve, x, y}
 }
 
 func (wallet *Wallet) AddTransaction(targetAddress string, value uint64) {

@@ -2,6 +2,7 @@ package wallet
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
 	"crypto/rand"
 	"math/big"
 	"strings"
@@ -85,6 +86,17 @@ func convertRSTextToBigInt(rs string) (r, s *big.Int) {
 	r.UnmarshalText([]byte(split[0]))
 	s.UnmarshalText([]byte(split[1]))
 	return
+}
+
+func buildPublicKey(x, y *big.Int) ecdsa.PublicKey {
+	curve := elliptic.P521()
+	return ecdsa.PublicKey{curve, x, y}
+}
+
+func generatePrivateKey() *ecdsa.PrivateKey {
+	curve := elliptic.P521()
+	privateKey, _ := ecdsa.GenerateKey(curve, rand.Reader)
+	return privateKey
 }
 
 /*

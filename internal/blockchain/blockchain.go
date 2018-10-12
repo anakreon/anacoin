@@ -25,7 +25,6 @@ func createGenesisBlock() *Block {
 		timestamp: 0,
 		nonce:     "imGenesis",
 	}
-	genesisBlock.CalculateAndSetHash()
 	return &genesisBlock
 }
 

@@ -8,8 +8,8 @@ import (
 
 type Block struct {
 	previousHash string
-	hash         string
 	timestamp    int64
+	merkleRoot   string
 	transactions []Transaction
 	nonce        string
 	target       int
@@ -21,20 +21,13 @@ func NewBlock(previousHash string, transactions []Transaction) *Block {
 		previousHash: previousHash,
 		target:       5,
 		transactions: transactions,
+		merkleRoot:   calculateMerkleRoot(transactions),
 	}
 }
 
 func (block Block) CalculateHash() string {
-	hashData := string(block.timestamp) + block.previousHash + block.nonce + string(block.target)
+	hashData := string(block.timestamp) + block.previousHash + block.nonce + string(block.target) + block.merkleRoot
 	return hasher.GetSha256Hash(hashData)
-}
-
-func (block *Block) CalculateAndSetHash() {
-	block.hash = block.CalculateHash()
-}
-
-func (block Block) GetHash() string {
-	return block.hash
 }
 
 func (block Block) GetTarget() int {
@@ -47,4 +40,20 @@ func (block Block) GetTransactions() []Transaction {
 
 func (block *Block) SetNonce(nonce string) {
 	block.nonce = nonce
+}
+
+func calculateMerkleRoot(transactions []Transaction) string {
+	if len(transactions)%2 != 0 {
+		transactions = append(transactions, transactions[len(transactions)-1])
+	}
+	return recursivelyCalculateMerkleRoot(transactions)
+}
+
+func recursivelyCalculateMerkleRoot(transactions []Transaction) string {
+	if len(transactions) == 1 {
+		return transactions[0].CalculateHash()
+	} else {
+		halfLength := len(transactions) / 2
+		return recursivelyCalculateMerkleRoot(transactions[:halfLength]) + recursivelyCalculateMerkleRoot(transactions[halfLength:])
+	}
 }
