@@ -16,7 +16,7 @@ func NewTransactionOutput(value uint64, scriptPubKey string) TransactionOutput {
 }
 
 func (output TransactionOutput) CalculateHash() string {
-	outValue := output.scriptPubKey + strconv.FormatUint(output.value, 64)
+	outValue := output.scriptPubKey + strconv.FormatUint(output.value, 16)
 	return hasher.GetDoubleHashBase64(outValue)
 }
 

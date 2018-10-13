@@ -31,7 +31,7 @@ func (blockchain *Blockchain) AddBlock(newBlock Block) {
 	blockchain.mutex.Lock()
 	previousBlock := blockchain.findBlockByHash(newBlock.previousHash)
 	if previousBlock != nil {
-		blockchain.list.CreateNewNodeAndLinkWithPreviousNode(previousBlock, newBlock)
+		blockchain.list.AddNode(previousBlock, newBlock)
 	}
 	blockchain.mutex.Unlock()
 }

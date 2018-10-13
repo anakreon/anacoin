@@ -20,10 +20,10 @@ func NewList(initialData NodeData) *List {
 	}
 }
 
-func (list *List) CreateNewNodeAndLinkWithPreviousNode(previousData NodeData, newData NodeData) {
+func (list *List) AddNode(previousData NodeData, nodeData NodeData) {
 	previousNode := list.getNodeByData(previousData)
 	if previousNode != nil {
-		newNode := NewNode(previousNode, newData)
+		newNode := NewNode(previousNode, nodeData)
 		list.addTail(newNode)
 		if !previousNode.HasNext() {
 			list.linkAndCheckIfNewMainTail(newNode, previousNode)
@@ -74,7 +74,7 @@ func (list *List) relinkMainChain() {
 
 func (list *List) getNodeByData(nodeData NodeData) *Node {
 	return list.findNodeInList(func(loopNode *Node) bool {
-		return loopNode.data == nodeData
+		return &(loopNode.data) == nodeData
 	})
 }
 

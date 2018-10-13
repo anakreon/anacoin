@@ -36,6 +36,7 @@ func run() {
 	connectorInstance := connector.NewConnector(storage, &unconfirmedTransactions)
 	wallet := wallet.NewWallet(storage, &unconfirmedTransactions, connectorInstance)
 	publicAddress := wallet.GetPublicAddress()
+
 	miner := miner.NewMiner(storage, &unconfirmedTransactions, connectorInstance)
 	go miner.Mine(publicAddress)
 

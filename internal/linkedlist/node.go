@@ -39,7 +39,7 @@ func (node *Node) GetData() *NodeData {
 }
 
 func (node *Node) HasFullLinkWithPreviousNode() bool {
-	return node.previousNode != nil && node.previousNode.nextNode == node
+	return node.previousNode == nil || node.previousNode.nextNode == node
 }
 
 func (node *Node) HasIndexLargerThan(otherNode *Node) bool {
