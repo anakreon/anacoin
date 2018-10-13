@@ -7,9 +7,7 @@ type Node struct {
 	data         NodeData
 }
 
-type NodeData interface {
-	GetHash() string
-}
+type NodeData interface{}
 
 func NewNode(previousNode *Node, data NodeData) *Node {
 	return &Node{

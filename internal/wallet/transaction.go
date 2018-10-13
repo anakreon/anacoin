@@ -10,40 +10,19 @@ import (
 	"github.com/anakreon/anacoin/internal/blockchain"
 )
 
-/*type TransactionInput struct {
-	transactionID    string
-	transactionIndex uint8
-	scriptSig        string
-}*/
-
-/*func (wallet *Wallet) buildUnspentTransactionInputs() blockchain.Transaction {
-	transactionsWithUnspentOutputs := wallet.storage.FindTransactions(func(transaction blockchain.Transaction) []blockchain.Transaction {
-		for output := transaction.out;
-	})
-}*/
-
 func (wallet *Wallet) createTransaction(targetAddress string, value uint64) blockchain.Transaction {
-	//lastBlock := wallet.storage.GetLastBlock()
-	//sourceTransaction := lastBlock.Transactions[0], sourceTransaction.CalculateHash()
-	return wallet.buildTransaction(targetAddress, value, "some hash")
+	return wallet.buildTransaction(targetAddress, value)
 }
 
-func (wallet *Wallet) buildTransaction(targetAddress string, value uint64, txid string) blockchain.Transaction {
-	transaction := blockchain.Transaction{
-		In: []blockchain.TransactionInput{
-			blockchain.TransactionInput{
-				TransactionID:    txid,
-				TransactionIndex: 0,
-			},
-		},
-		Out: []blockchain.TransactionOutput{
-			blockchain.TransactionOutput{
-				Value:        value,
-				ScriptPubKey: targetAddress,
-			},
-		},
+func (wallet *Wallet) buildTransaction(targetAddress string, value uint64) blockchain.Transaction {
+	inputs := []blockchain.TransactionInput{}
+	mainOutput := blockchain.NewTransactionOutput(value, targetAddress)
+	outputs := []blockchain.TransactionOutput{
+		mainOutput,
 	}
-	transaction.In[0].ScriptSig = wallet.buildSignature(transaction.CalculateHash())
+	transaction := blockchain.NewTransaction(inputs, outputs)
+	signature := wallet.buildSignature(transaction.CalculateHash())
+	transaction.SetSignatureForInputs(signature)
 	return transaction
 }
 

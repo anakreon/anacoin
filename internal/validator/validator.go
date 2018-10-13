@@ -8,11 +8,8 @@ import (
 )
 
 func IsValidBlock(block *blockchain.Block) bool {
-	hash := block.GetHash()
-	hasValidCalculatedHash := block.CalculateHash() == hash
-	hasValidHashAsPerTarget := IsValidHashAsPerTarget(hash, block.GetTarget())
-	return hasValidCalculatedHash &&
-		hasValidHashAsPerTarget &&
+	hasValidHashAsPerTarget := IsValidHashAsPerTarget(block.CalculateHash(), block.GetTarget())
+	return hasValidHashAsPerTarget &&
 		hasCoinbaseTransaction(block) &&
 		areTransactionsValid(block)
 }
@@ -20,10 +17,10 @@ func IsValidBlock(block *blockchain.Block) bool {
 func hasCoinbaseTransaction(block *blockchain.Block) bool {
 	transactions := block.GetTransactions()
 	return len(transactions) > 0 &&
-		len(transactions[0].In) == 1 &&
-		transactions[0].In[0].ScriptSig == "COINBASE" &&
-		len(transactions[0].Out) == 1 &&
-		transactions[0].Out[0].Value == 1
+		transactions[0].GetInputLength() == 1 &&
+		transactions[0].GetInputs()[0].GetSignature() == "COINBASE" &&
+		transactions[0].GetOutputLength() == 1 &&
+		transactions[0].GetOutputs()[0].GetValue() == 1
 }
 
 func areTransactionsValid(block *blockchain.Block) bool {

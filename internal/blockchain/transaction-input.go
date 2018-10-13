@@ -1,15 +1,26 @@
 package blockchain
 
+import "github.com/anakreon/anacoin/internal/hasher"
+
 type TransactionInput struct {
 	transactionID    string
 	transactionIndex uint8
 	scriptSig        string
 }
 
-func newTransactionInput(transactionID string, transactionIndex uint8, scriptSig string) TransactionInput {
-	return TransactionInput{
-		transactionID:    transactionID,
-		transactionIndex: transactionIndex,
-		scriptSig:        scriptSig,
-	}
+func NewTransactionInput(transactionID string, transactionIndex uint8, scriptSig string) TransactionInput {
+	return TransactionInput{transactionID, transactionIndex, scriptSig}
+}
+
+func (input TransactionInput) CalculateHash() string {
+	inValue := input.transactionID + string(input.transactionIndex)
+	return hasher.GetDoubleHashBase64(inValue)
+}
+
+func (input TransactionInput) GetSignature() string {
+	return input.scriptSig
+}
+
+func (input *TransactionInput) SetSignature(signature string) {
+	input.scriptSig = signature
 }

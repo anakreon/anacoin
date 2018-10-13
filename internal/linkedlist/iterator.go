@@ -21,7 +21,7 @@ func (iterator *listIterator) HasNext() bool {
 func (iterator *listIterator) Next() NodeData {
 	nextNode := iterator.nextNode
 	iterator.goToNextNode()
-	return nextNode.data
+	return &nextNode.data
 }
 
 func (iterator *listIterator) goToNextNode() {

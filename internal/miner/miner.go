@@ -51,20 +51,19 @@ func (miner *Miner) Stop() {
 
 func (miner *Miner) buildCandidateBlock(pubKey string, lastBlock blockchain.Block) blockchain.Block {
 	transactions := miner.buildTransactions(pubKey)
-	candidateBlock := blockchain.NewBlock(lastBlock.GetHash(), transactions)
+	candidateBlock := blockchain.NewBlock(lastBlock.CalculateHash(), transactions)
 	return *candidateBlock
 }
 
 func (miner *Miner) mineBlock(block blockchain.Block) blockchain.Block {
 	for miner.shouldContinueMining(block) {
 		block.SetNonce(generateRandomHex())
-		block.CalculateAndSetHash()
 	}
 	return block
 }
 
 func (miner *Miner) shouldContinueMining(block blockchain.Block) bool {
-	return miner.shouldMine && !validator.IsValidHashAsPerTarget(block.GetHash(), block.GetTarget())
+	return miner.shouldMine && !validator.IsValidHashAsPerTarget(block.CalculateHash(), block.GetTarget())
 }
 
 func generateRandomHex() string {
@@ -73,24 +72,16 @@ func generateRandomHex() string {
 }
 
 func (miner *Miner) buildTransactions(pubKey string) []blockchain.Transaction {
-	coinbaseTransactions := []blockchain.Transaction{
-		buildCoinbaseTransaction(pubKey),
-	}
-	return append(coinbaseTransactions, *miner.unconfirmedTransactions...)
+	coinbaseTransaction := buildCoinbaseTransaction(pubKey)
+	return append([]blockchain.Transaction{coinbaseTransaction}, *miner.unconfirmedTransactions...)
 }
 
 func buildCoinbaseTransaction(pubKey string) blockchain.Transaction {
-	return blockchain.Transaction{
-		In: []blockchain.TransactionInput{
-			blockchain.TransactionInput{
-				ScriptSig: "COINBASE",
-			},
-		},
-		Out: []blockchain.TransactionOutput{
-			blockchain.TransactionOutput{
-				Value:        1,
-				ScriptPubKey: pubKey,
-			},
-		},
+	inputs := []blockchain.TransactionInput{
+		blockchain.NewTransactionInput("", 0, "COINBASE"),
 	}
+	outputs := []blockchain.TransactionOutput{
+		blockchain.NewTransactionOutput(1, pubKey),
+	}
+	return blockchain.NewTransaction(inputs, outputs)
 }

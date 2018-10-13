@@ -1,7 +1,6 @@
 package blockchain
 
 import (
-	"log"
 	"sync"
 
 	"github.com/anakreon/anacoin/internal/linkedlist"
@@ -29,20 +28,24 @@ func createGenesisBlock() *Block {
 }
 
 func (blockchain *Blockchain) AddBlock(newBlock Block) {
-	log.Println(newBlock)
 	blockchain.mutex.Lock()
-	previousNode := blockchain.findNodeByBlockHash(newBlock.previousHash)
-	if previousNode != nil {
-		blockchain.list.CreateNewNodeAndLinkWithPreviousNode(previousNode, newBlock)
+	previousBlock := blockchain.findBlockByHash(newBlock.previousHash)
+	if previousBlock != nil {
+		blockchain.list.CreateNewNodeAndLinkWithPreviousNode(previousBlock, newBlock)
 	}
 	blockchain.mutex.Unlock()
 }
 
-func (blockchain *Blockchain) findNodeByBlockHash(hash string) *linkedlist.Node {
-	return blockchain.list.FindNodeInList(func(node *linkedlist.Node) bool {
-		nodeData := node.GetData()
-		return (*nodeData).GetHash() == hash
-	})
+func (blockchain *Blockchain) findBlockByHash(hash string) (resultBlock *Block) {
+	iterator := blockchain.list.Iterator()
+	for iterator.HasNext() {
+		currentBlock := iterator.Next().(*Block)
+		if currentBlock.CalculateHash() == hash {
+			resultBlock = currentBlock
+			break
+		}
+	}
+	return
 }
 
 func (blockchain *Blockchain) GetLastBlock() Block {

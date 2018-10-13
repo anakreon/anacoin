@@ -20,14 +20,14 @@ func NewList(initialData NodeData) *List {
 	}
 }
 
-func (list *List) CreateNewNodeAndLinkWithPreviousNode(previousNode *Node, newData NodeData) {
-	if !list.containsNode(previousNode) {
-		return
-	}
-	newNode := NewNode(previousNode, newData)
-	list.addTail(newNode)
-	if !previousNode.HasNext() {
-		list.linkAndCheckIfNewMainTail(newNode, previousNode)
+func (list *List) CreateNewNodeAndLinkWithPreviousNode(previousData NodeData, newData NodeData) {
+	previousNode := list.getNodeByData(previousData)
+	if previousNode != nil {
+		newNode := NewNode(previousNode, newData)
+		list.addTail(newNode)
+		if !previousNode.HasNext() {
+			list.linkAndCheckIfNewMainTail(newNode, previousNode)
+		}
 	}
 }
 
@@ -72,16 +72,15 @@ func (list *List) relinkMainChain() {
 	}
 }
 
-func (list *List) containsNode(node *Node) bool {
-	return nil != list.FindNodeInList(func(loopNode *Node) bool {
-		return loopNode == node
+func (list *List) getNodeByData(nodeData NodeData) *Node {
+	return list.findNodeInList(func(loopNode *Node) bool {
+		return loopNode.data == nodeData
 	})
 }
 
-type CorrectNodeCallback func(node *Node) bool
+type correctNodeCallback func(node *Node) bool
 
-func (list *List) FindNodeInList(isCorrectNode CorrectNodeCallback) *Node {
-	var resultNode *Node = nil
+func (list *List) findNodeInList(isCorrectNode correctNodeCallback) (resultNode *Node) {
 Mainloop:
 	for _, currentTail := range list.allTails {
 		for node := currentTail; node.HasFullLinkWithPreviousNode(); node = node.GetPrevious() {
@@ -91,5 +90,5 @@ Mainloop:
 			}
 		}
 	}
-	return resultNode
+	return
 }

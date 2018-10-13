@@ -1,8 +1,6 @@
 package blockchain
 
 import (
-	"strconv"
-
 	"github.com/anakreon/anacoin/internal/hasher"
 )
 
@@ -11,28 +9,48 @@ type Transaction struct {
 	out []TransactionOutput
 }
 
-func NewTransaction(inputs []TransactionInput, outputs []TransactionOutput) *Transaction {
-	return &Transaction{
-		in:  inputs,
-		out: outputs,
-	}
+type hashable interface {
+	CalculateHash() string
 }
 
-/*func (transaction Transaction) buildTransactionInputFromOutput(transactionOutputIndex uint8, scriptSig string) TransactionInput {
-	transactionID := transaction.CalculateHash()
-	return newTransactionInput(transactionID, transactionOutputIndex, scriptSig)
-}*/
+func NewTransaction(in []TransactionInput, out []TransactionOutput) Transaction {
+	return Transaction{in, out}
+}
 
 func (transaction Transaction) CalculateHash() string {
 	inHash, outHash := "", ""
-	for _, input := range transaction.in {
-		inValue := input.transactionID + string(input.transactionIndex) + inHash
-		inHash = hasher.GetDoubleHashBase64(inValue)
+	for _, value := range transaction.in {
+		inHash = calculateValueHash(value, inHash)
 	}
-
-	for _, output := range transaction.out {
-		outValue := output.scriptPubKey + strconv.FormatUint(output.value, 64) + outHash
-		outHash = hasher.GetDoubleHashBase64(outValue)
+	for _, value := range transaction.out {
+		outHash = calculateValueHash(value, inHash)
 	}
 	return hasher.GetDoubleHashBase64(inHash + outHash)
+}
+
+func calculateValueHash(value hashable, hash string) string {
+	loopHash := value.CalculateHash() + hash
+	return hasher.GetDoubleHashBase64(loopHash)
+}
+
+func (transaction *Transaction) GetInputLength() int {
+	return len(transaction.in)
+}
+
+func (transaction *Transaction) GetOutputLength() int {
+	return len(transaction.out)
+}
+
+func (transaction *Transaction) GetInputs() []TransactionInput {
+	return transaction.in
+}
+
+func (transaction *Transaction) GetOutputs() []TransactionOutput {
+	return transaction.out
+}
+
+func (transaction *Transaction) SetSignatureForInputs(signature string) {
+	for _, input := range transaction.in {
+		input.SetSignature(signature)
+	}
 }
