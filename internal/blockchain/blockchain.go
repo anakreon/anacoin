@@ -37,7 +37,7 @@ func (blockchain *Blockchain) AddBlock(newBlock Block) {
 }
 
 func (blockchain *Blockchain) findBlockByHash(hash string) (resultBlock *Block) {
-	iterator := blockchain.list.Iterator()
+	iterator := blockchain.list.AllTailsIterator()
 	for iterator.HasNext() {
 		currentBlock := iterator.Next().(*Block)
 		if currentBlock.CalculateHash() == hash {

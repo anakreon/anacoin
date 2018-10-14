@@ -20,15 +20,15 @@ func NewTransaction(in []TransactionInput, out []TransactionOutput) Transaction 
 func (transaction Transaction) CalculateHash() string {
 	inHash, outHash := "", ""
 	for _, value := range transaction.in {
-		inHash = calculateValueHash(value, inHash)
+		inHash = calculateHashableValueHash(value, inHash)
 	}
 	for _, value := range transaction.out {
-		outHash = calculateValueHash(value, inHash)
+		outHash = calculateHashableValueHash(value, inHash)
 	}
 	return hasher.GetDoubleHashBase64(inHash + outHash)
 }
 
-func calculateValueHash(value hashable, hash string) string {
+func calculateHashableValueHash(value hashable, hash string) string {
 	loopHash := value.CalculateHash() + hash
 	return hasher.GetDoubleHashBase64(loopHash)
 }

@@ -4,11 +4,11 @@ import "github.com/anakreon/anacoin/internal/hasher"
 
 type TransactionInput struct {
 	transactionID    string
-	transactionIndex uint8
+	transactionIndex int
 	scriptSig        string
 }
 
-func NewTransactionInput(transactionID string, transactionIndex uint8, scriptSig string) TransactionInput {
+func NewTransactionInput(transactionID string, transactionIndex int, scriptSig string) TransactionInput {
 	return TransactionInput{transactionID, transactionIndex, scriptSig}
 }
 

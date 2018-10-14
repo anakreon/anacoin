@@ -10,6 +10,24 @@ import (
 	"github.com/anakreon/anacoin/internal/blockchain"
 )
 
+func (wallet *Wallet) getMyUnspentTransactionOutputs() blockchain.UnspentTransactionOutputs {
+	unspentTransactionOutputs := wallet.storage.FindUnspentTransactionOutputs()
+	return unspentTransactionOutputs.FilterUnspentTransactionOutputs(func(output blockchain.TransactionOutput) bool {
+		return output.GetPubKey() == wallet.GetPublicAddress()
+	})
+}
+
+func (wallet *Wallet) getBalance() uint64 {
+	var balance uint64 = 0
+	myUnspentTransactionOutputs := wallet.getMyUnspentTransactionOutputs()
+	for _, indexOutputMap := range myUnspentTransactionOutputs {
+		for _, output := range indexOutputMap {
+			balance += output.GetValue()
+		}
+	}
+	return balance
+}
+
 func (wallet *Wallet) createTransaction(targetAddress string, value uint64) blockchain.Transaction {
 	return wallet.buildTransaction(targetAddress, value)
 }
