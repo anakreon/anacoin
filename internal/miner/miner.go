@@ -77,8 +77,10 @@ func (miner *Miner) buildTransactions(pubKey string) []blockchain.Transaction {
 }
 
 func buildCoinbaseTransaction(pubKey string) blockchain.Transaction {
+	coinbaseTransactionInput := blockchain.NewTransactionInput("", 0)
+	coinbaseTransactionInput.SetSignature("COINBASE")
 	inputs := []blockchain.TransactionInput{
-		blockchain.NewTransactionInput("", 0, "COINBASE"),
+		coinbaseTransactionInput,
 	}
 	outputs := []blockchain.TransactionOutput{
 		blockchain.NewTransactionOutput(1, pubKey),

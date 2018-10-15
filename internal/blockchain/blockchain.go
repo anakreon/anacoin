@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"fmt"
 	"sync"
 
 	"github.com/anakreon/anacoin/internal/linkedlist"
@@ -39,7 +40,10 @@ func (blockchain *Blockchain) AddBlock(newBlock Block) {
 func (blockchain *Blockchain) findBlockByHash(hash string) (resultBlock *Block) {
 	iterator := blockchain.list.AllTailsIterator()
 	for iterator.HasNext() {
-		currentBlock := iterator.Next().(*Block)
+		currentBlockX := iterator.Next()
+		fmt.Println(currentBlockX)
+		//
+		currentBlock := currentBlockX.(*Block)
 		if currentBlock.CalculateHash() == hash {
 			resultBlock = currentBlock
 			break

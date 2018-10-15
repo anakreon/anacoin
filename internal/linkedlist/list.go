@@ -63,7 +63,7 @@ func (list *List) setMainTail(node *Node) {
 }
 
 func (list *List) GetMainTailData() NodeData {
-	return list.mainTail.data
+	return list.mainTail.GetData()
 }
 
 func (list *List) relinkMainChain() {

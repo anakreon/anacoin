@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/rpc"
-	"time"
 
 	"github.com/anakreon/anacoin/internal/arpc"
 	"github.com/anakreon/anacoin/internal/blockchain"
@@ -45,14 +44,14 @@ func run() {
 
 	client := arpc.Connect("localhost", "2222")
 	client.Call("AnacoinRpc.Mine", arpc.MineArgs{publicAddress}, nil)*/
+	/*
+		connectorRPC := arpc.NewConnectorRpc(connectorInstance)
+		go arpc.Serve(&connectorRPC, "", "1111")
 
-	connectorRPC := arpc.NewConnectorRpc(connectorInstance)
-	go arpc.Serve(&connectorRPC, "", "1111")
-
-	time.Sleep(30 * time.Second)
-	clientOne := arpc.Connect("localhost", "2222")
-	peerOne := RpcPeer{clientOne}
-	connectorInstance.AddPeer(peerOne)
+		time.Sleep(30 * time.Second)
+		clientOne := arpc.Connect("localhost", "2222")
+		peerOne := RpcPeer{clientOne}
+		connectorInstance.AddPeer(peerOne)*/
 
 	//miner.Mine(publicAddress)
 	/*peerReceivers := PeerReceivers{}

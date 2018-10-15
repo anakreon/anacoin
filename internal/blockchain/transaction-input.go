@@ -8,8 +8,8 @@ type TransactionInput struct {
 	scriptSig        string
 }
 
-func NewTransactionInput(transactionID string, transactionIndex int, scriptSig string) TransactionInput {
-	return TransactionInput{transactionID, transactionIndex, scriptSig}
+func NewTransactionInput(transactionID string, transactionIndex int) TransactionInput {
+	return TransactionInput{transactionID, transactionIndex, ""}
 }
 
 func (input TransactionInput) CalculateHash() string {

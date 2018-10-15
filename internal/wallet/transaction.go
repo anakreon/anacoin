@@ -33,11 +33,8 @@ func (wallet *Wallet) createTransaction(targetAddress string, value uint64) bloc
 }
 
 func (wallet *Wallet) buildTransaction(targetAddress string, value uint64) blockchain.Transaction {
-	inputs := []blockchain.TransactionInput{}
-	mainOutput := blockchain.NewTransactionOutput(value, targetAddress)
-	outputs := []blockchain.TransactionOutput{
-		mainOutput,
-	}
+	inputs, remainderValue, _ := wallet.buildTransactionInputsForValue(value)
+	outputs := wallet.buildTransactionOutputs(value, remainderValue, targetAddress)
 	transaction := blockchain.NewTransaction(inputs, outputs)
 	signature := wallet.buildSignature(transaction.CalculateHash())
 	transaction.SetSignatureForInputs(signature)
@@ -95,14 +92,6 @@ func generatePrivateKey() *ecdsa.PrivateKey {
 	privateKey, _ := ecdsa.GenerateKey(curve, rand.Reader)
 	return privateKey
 }
-
-/*
-func convertRSTextToBigInt(rs string) (r, s *big.Int) {
-	split := strings.Split(rs, ",")
-	r.UnmarshalText([]byte(split[0]))
-	s.UnmarshalText([]byte(split[1]))
-	return
-}*/
 
 /*func TestSign() {
 	value := "hello world"

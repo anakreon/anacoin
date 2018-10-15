@@ -47,8 +47,8 @@ func (wallet *Wallet) AddTransaction(targetAddress string, value uint64) {
 	wallet.connector.BroadcastNewTransaction(transaction)
 }
 
-func (wallet *Wallet) GetUnspentValue() uint64 {
-	return 0
+func (wallet *Wallet) GetBalance() uint64 {
+	return wallet.getBalance()
 }
 
 /*func TestSign() {

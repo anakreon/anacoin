@@ -34,7 +34,7 @@ func (node *Node) GetPrevious() *Node {
 	return node.previousNode
 }
 
-func (node *Node) GetData() *NodeData {
+func (node *Node) GetData() NodeData {
 	return &node.data
 }
 

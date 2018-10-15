@@ -34,7 +34,7 @@ func (iterator *listIterator) HasNext() bool {
 func (iterator *listIterator) Next() NodeData {
 	nextNode := iterator.nextNode
 	iterator.goToNextNode()
-	return &nextNode.data
+	return nextNode.GetData()
 }
 
 func goToNextNodeIncludingOtherTails(iterator *listIterator) func() {
@@ -42,7 +42,7 @@ func goToNextNodeIncludingOtherTails(iterator *listIterator) func() {
 		if iterator.nextNode != nil {
 			if iterator.nextNode.HasPrevious() {
 				iterator.nextNode = iterator.nextNode.GetPrevious()
-			} else if iterator.currentTailIndex < len(iterator.list.allTails) {
+			} else if iterator.currentTailIndex < (len(iterator.list.allTails) - 1) {
 				iterator.currentTailIndex++
 				iterator.nextNode = iterator.list.allTails[iterator.currentTailIndex]
 			}
