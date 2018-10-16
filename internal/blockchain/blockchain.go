@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/anakreon/anacoin/internal/linkedlist"
+	"github.com/anakreon/anacoin/internal/block"
+	linkedlist "github.com/anakreon/anacoin/internal/linkedlist-gen"
 )
 
 type Blockchain struct {
@@ -20,30 +21,26 @@ func NewBlockchain() *Blockchain {
 	}
 }
 
-func createGenesisBlock() *Block {
-	genesisBlock := Block{
-		timestamp: 0,
-		nonce:     "imGenesis",
-	}
-	return &genesisBlock
+func createGenesisBlock() block.Block {
+	block := block.Block{}
+	block.SetNonce("imGenesis")
+	return block
 }
 
-func (blockchain *Blockchain) AddBlock(newBlock Block) {
+func (blockchain *Blockchain) AddBlock(newBlock block.Block) {
+	fmt.Println(newBlock)
 	blockchain.mutex.Lock()
-	previousBlock := blockchain.findBlockByHash(newBlock.previousHash)
+	previousBlock := blockchain.findBlockByHash(newBlock.GetPreviousHash())
 	if previousBlock != nil {
 		blockchain.list.AddNode(previousBlock, newBlock)
 	}
 	blockchain.mutex.Unlock()
 }
 
-func (blockchain *Blockchain) findBlockByHash(hash string) (resultBlock *Block) {
+func (blockchain *Blockchain) findBlockByHash(hash string) (resultBlock *block.Block) {
 	iterator := blockchain.list.AllTailsIterator()
 	for iterator.HasNext() {
-		currentBlockX := iterator.Next()
-		fmt.Println(currentBlockX)
-		//
-		currentBlock := currentBlockX.(*Block)
+		currentBlock := iterator.Next()
 		if currentBlock.CalculateHash() == hash {
 			resultBlock = currentBlock
 			break
@@ -52,18 +49,17 @@ func (blockchain *Blockchain) findBlockByHash(hash string) (resultBlock *Block) 
 	return
 }
 
-func (blockchain *Blockchain) GetLastBlock() Block {
-	block, _ := blockchain.list.GetMainTailData().(Block)
-	return block
+func (blockchain *Blockchain) GetLastBlock() block.Block {
+	return *blockchain.list.GetMainTailData()
 }
 
-type CorrectTransactionCallback func(transaction Transaction) bool
+type CorrectTransactionCallback func(transaction block.Transaction) bool
 
-func (blockchain *Blockchain) FindTransactions(isCorrectTransaction CorrectTransactionCallback) []Transaction {
-	matchingTransactions := []Transaction{}
+func (blockchain *Blockchain) FindTransactions(isCorrectTransaction CorrectTransactionCallback) []block.Transaction {
+	matchingTransactions := []block.Transaction{}
 	iterator := blockchain.list.Iterator()
 	for iterator.HasNext() {
-		block := iterator.Next().(Block)
+		block := iterator.Next()
 		transactions := block.GetTransactions()
 		for _, transaction := range transactions {
 			if isCorrectTransaction(transaction) {
@@ -72,4 +68,15 @@ func (blockchain *Blockchain) FindTransactions(isCorrectTransaction CorrectTrans
 		}
 	}
 	return matchingTransactions
+}
+
+func (blockchain *Blockchain) FindUnspentTransactionOutputs() block.UnspentTransactionOutputs {
+	unspentTransactionOutputs := make(block.UnspentTransactionOutputs)
+	iterator := blockchain.list.Iterator()
+	for iterator.HasNext() {
+		block := iterator.Next()
+		transactions := block.GetTransactions()
+		unspentTransactionOutputs.UpdateFromTransactions(transactions)
+	}
+	return unspentTransactionOutputs
 }

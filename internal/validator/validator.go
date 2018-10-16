@@ -4,17 +4,17 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 )
 
-func IsValidBlock(block *blockchain.Block) bool {
+func IsValidBlock(block *block.Block) bool {
 	hasValidHashAsPerTarget := IsValidHashAsPerTarget(block.CalculateHash(), block.GetTarget())
 	return hasValidHashAsPerTarget &&
 		hasCoinbaseTransaction(block) &&
 		areTransactionsValid(block)
 }
 
-func hasCoinbaseTransaction(block *blockchain.Block) bool {
+func hasCoinbaseTransaction(block *block.Block) bool {
 	transactions := block.GetTransactions()
 	return len(transactions) > 0 &&
 		transactions[0].GetInputLength() == 1 &&
@@ -23,7 +23,7 @@ func hasCoinbaseTransaction(block *blockchain.Block) bool {
 		transactions[0].GetOutputs()[0].GetValue() == 1
 }
 
-func areTransactionsValid(block *blockchain.Block) bool {
+func areTransactionsValid(block *block.Block) bool {
 	transactions := block.GetTransactions()
 	areValid := true
 	for i := 1; i < len(transactions); i++ {

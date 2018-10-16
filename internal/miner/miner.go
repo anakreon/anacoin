@@ -4,18 +4,18 @@ import (
 	"math/rand"
 	"strconv"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 	"github.com/anakreon/anacoin/internal/mempool"
 	"github.com/anakreon/anacoin/internal/validator"
 )
 
 type storage interface {
-	GetLastBlock() blockchain.Block
-	AddBlock(block blockchain.Block)
+	GetLastBlock() block.Block
+	AddBlock(block block.Block)
 }
 
 type connector interface {
-	BroadcastNewBlock(block blockchain.Block)
+	BroadcastNewBlock(block block.Block)
 }
 
 type Miner struct {
@@ -49,20 +49,20 @@ func (miner *Miner) Stop() {
 	miner.shouldMine = false
 }
 
-func (miner *Miner) buildCandidateBlock(pubKey string, lastBlock blockchain.Block) blockchain.Block {
+func (miner *Miner) buildCandidateBlock(pubKey string, lastBlock block.Block) block.Block {
 	transactions := miner.buildTransactions(pubKey)
-	candidateBlock := blockchain.NewBlock(lastBlock.CalculateHash(), transactions)
+	candidateBlock := block.NewBlock(lastBlock.CalculateHash(), transactions)
 	return *candidateBlock
 }
 
-func (miner *Miner) mineBlock(block blockchain.Block) blockchain.Block {
+func (miner *Miner) mineBlock(block block.Block) block.Block {
 	for miner.shouldContinueMining(block) {
 		block.SetNonce(generateRandomHex())
 	}
 	return block
 }
 
-func (miner *Miner) shouldContinueMining(block blockchain.Block) bool {
+func (miner *Miner) shouldContinueMining(block block.Block) bool {
 	return miner.shouldMine && !validator.IsValidHashAsPerTarget(block.CalculateHash(), block.GetTarget())
 }
 
@@ -71,19 +71,19 @@ func generateRandomHex() string {
 	return strconv.FormatInt(randomInt, 16)
 }
 
-func (miner *Miner) buildTransactions(pubKey string) []blockchain.Transaction {
+func (miner *Miner) buildTransactions(pubKey string) []block.Transaction {
 	coinbaseTransaction := buildCoinbaseTransaction(pubKey)
-	return append([]blockchain.Transaction{coinbaseTransaction}, *miner.unconfirmedTransactions...)
+	return append([]block.Transaction{coinbaseTransaction}, *miner.unconfirmedTransactions...)
 }
 
-func buildCoinbaseTransaction(pubKey string) blockchain.Transaction {
-	coinbaseTransactionInput := blockchain.NewTransactionInput("", 0)
+func buildCoinbaseTransaction(pubKey string) block.Transaction {
+	coinbaseTransactionInput := block.NewTransactionInput("", 0)
 	coinbaseTransactionInput.SetSignature("COINBASE")
-	inputs := []blockchain.TransactionInput{
+	inputs := []block.TransactionInput{
 		coinbaseTransactionInput,
 	}
-	outputs := []blockchain.TransactionOutput{
-		blockchain.NewTransactionOutput(1, pubKey),
+	outputs := []block.TransactionOutput{
+		block.NewTransactionOutput(1, pubKey),
 	}
-	return blockchain.NewTransaction(inputs, outputs)
+	return block.NewTransaction(inputs, outputs)
 }

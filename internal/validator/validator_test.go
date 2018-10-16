@@ -3,7 +3,7 @@ package validator
 import (
 	"testing"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 )
 
 /*
@@ -15,7 +15,7 @@ func TestIsValidBlock(t *testing.T) {
 
 	var isValidTests = []struct {
 		label    string
-		block    *blockchain.Block
+		block    *block.Block
 		expected bool
 	}{
 		{"is valid", &validBlock, true},
@@ -29,41 +29,41 @@ func TestIsValidBlock(t *testing.T) {
 	}
 }
 
-func buildBlockInvalidNonce() blockchain.Block {
+func buildBlockInvalidNonce() block.Block {
 	block := buildValidBlock()
 	block.SetNonce("not a valid nonce")
 	return block
 }
 
 
-func buildBlockInvalidHash() blockchain.Block {
+func buildBlockInvalidHash() block.Block {
 	block := buildValidBlock()
 	block.hash = "not a valid hash"
 	return block
 }
 
-func buildBlockNoCoinbaseTransaction() blockchain.Block {
+func buildBlockNoCoinbaseTransaction() block.Block {
 	block := buildValidBlock()
-	block.transactions = []blockchain.Transaction{}
+	block.transactions = []block.Transaction{}
 	return block
 }
 
-func buildValidBlock() blockchain.Block {
-	return blockchain.Block{
+func buildValidBlock() block.Block {
+	return block.Block{
 		previousHash: "PreviousHash",
 		timestamp:    1234,
 		target:       3,
 		nonce:        "2bbc74fc8b213512",
 		hash:         "8888fbf1517a4b6a55a6972da919d1bd8d8a3ee3b5e99f3387d61cac95988389",
-		transactions: []blockchain.Transaction{
-			blockchain.Transaction{
-				In: []blockchain.TransactionInput{
-					blockchain.TransactionInput{
+		transactions: []block.Transaction{
+			block.Transaction{
+				In: []block.TransactionInput{
+					block.TransactionInput{
 						ScriptSig: "COINBASE",
 					},
 				},
-				Out: []blockchain.TransactionOutput{
-					blockchain.TransactionOutput{
+				Out: []block.TransactionOutput{
+					block.TransactionOutput{
 						Value:        1,
 						ScriptPubKey: "asdf",
 					},
@@ -73,7 +73,7 @@ func buildValidBlock() blockchain.Block {
 	}
 }*/
 
-func testIsValidBlock(block *blockchain.Block, expected bool) func(*testing.T) {
+func testIsValidBlock(block *block.Block, expected bool) func(*testing.T) {
 	return func(t *testing.T) {
 		if IsValidBlock(block) != expected {
 			t.Fail()

@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import (
 	"time"
@@ -32,6 +32,10 @@ func (block Block) CalculateHash() string {
 
 func (block Block) GetTarget() int {
 	return block.target
+}
+
+func (block Block) GetPreviousHash() string {
+	return block.previousHash
 }
 
 func (block Block) GetTransactions() []Transaction {

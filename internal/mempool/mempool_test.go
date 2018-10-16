@@ -3,7 +3,7 @@ package mempool
 import (
 	"testing"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 )
 
 func TestNewUnconfirmedTransactions(t *testing.T) {
@@ -41,10 +41,10 @@ func TestClear(t *testing.T) {
 	}
 }
 
-func buildTransactionWithId(id string) blockchain.Transaction {
-	return blockchain.Transaction{
-		In: []blockchain.TransactionInput{
-			blockchain.TransactionInput{TransactionID: id},
+func buildTransactionWithId(id string) block.Transaction {
+	return block.Transaction{
+		In: []block.TransactionInput{
+			block.TransactionInput{TransactionID: id},
 		},
 	}
 }

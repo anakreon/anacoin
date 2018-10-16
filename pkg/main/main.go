@@ -4,6 +4,7 @@ import (
 	"net/rpc"
 
 	"github.com/anakreon/anacoin/internal/arpc"
+	"github.com/anakreon/anacoin/internal/block"
 	"github.com/anakreon/anacoin/internal/blockchain"
 	"github.com/anakreon/anacoin/internal/connector"
 	"github.com/anakreon/anacoin/internal/mempool"
@@ -21,11 +22,11 @@ type RpcPeer struct {
 	rpcClient *rpc.Client
 }
 
-func (peer RpcPeer) SendBlock(block blockchain.Block) {
+func (peer RpcPeer) SendBlock(block block.Block) {
 	peer.rpcClient.Call("ConnectorRpc.ReceiveBlock", arpc.ReceiveBlockArgs{block}, nil)
 }
 
-func (peer RpcPeer) SendTransaction(transaction blockchain.Transaction) {
+func (peer RpcPeer) SendTransaction(transaction block.Transaction) {
 	peer.rpcClient.Call("ConnectorRpc.ReceiveTransaction", arpc.ReceiveTransactionArgs{transaction}, nil)
 }
 

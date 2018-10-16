@@ -3,16 +3,17 @@ package wallet
 import (
 	"crypto/ecdsa"
 
+	"github.com/anakreon/anacoin/internal/block"
 	"github.com/anakreon/anacoin/internal/blockchain"
 	"github.com/anakreon/anacoin/internal/hasher"
 )
 
 type connector interface {
-	BroadcastNewTransaction(transaction blockchain.Transaction)
+	BroadcastNewTransaction(transaction block.Transaction)
 }
 
 type unconfirmedTransactions interface {
-	AddTransaction(transaction blockchain.Transaction)
+	AddTransaction(transaction block.Transaction)
 }
 
 type Wallet struct {

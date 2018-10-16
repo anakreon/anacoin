@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 type transactionID string
 type transactionIndexOutputMap map[int]TransactionOutput
@@ -21,7 +21,7 @@ func (unspentTransactionOutputs UnspentTransactionOutputs) FilterUnspentTransact
 	return filteredUnspentTransactionOutputs
 }
 
-func (unspentTransactionOutputs UnspentTransactionOutputs) updateFromTransactions(transactions []Transaction) {
+func (unspentTransactionOutputs UnspentTransactionOutputs) UpdateFromTransactions(transactions []Transaction) {
 	for _, transaction := range transactions {
 		transactionID := transactionID(transaction.CalculateHash())
 		unspentTransactionOutputs.addTransactionOutputs(transactionID, transaction.out)
@@ -44,15 +44,4 @@ func (unspentTransactionOutputs UnspentTransactionOutputs) removeTransactionInpu
 			delete(unspentTransactionOutputs, transactionID)
 		}
 	}
-}
-
-func (blockchain *Blockchain) FindUnspentTransactionOutputs() UnspentTransactionOutputs {
-	unspentTransactionOutputs := make(UnspentTransactionOutputs)
-	iterator := blockchain.list.Iterator()
-	for iterator.HasNext() {
-		block := iterator.Next().(Block)
-		transactions := block.GetTransactions()
-		unspentTransactionOutputs.updateFromTransactions(transactions)
-	}
-	return unspentTransactionOutputs
 }

@@ -3,14 +3,14 @@ package mempool
 import (
 	"sync"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 )
 
-type UnconfirmedTransactions []blockchain.Transaction
+type UnconfirmedTransactions []block.Transaction
 
 var mutex *sync.Mutex
 
-func (transactions *UnconfirmedTransactions) AddTransaction(transaction blockchain.Transaction) {
+func (transactions *UnconfirmedTransactions) AddTransaction(transaction block.Transaction) {
 	mutex.Lock()
 	*transactions = append(*transactions, transaction)
 	mutex.Unlock()
@@ -18,11 +18,11 @@ func (transactions *UnconfirmedTransactions) AddTransaction(transaction blockcha
 
 func (transactions *UnconfirmedTransactions) Clear() {
 	mutex.Lock()
-	*transactions = []blockchain.Transaction{}
+	*transactions = []block.Transaction{}
 	mutex.Unlock()
 }
 
 func NewUnconfirmedTransactions() UnconfirmedTransactions {
 	mutex = &sync.Mutex{}
-	return []blockchain.Transaction{}
+	return []block.Transaction{}
 }

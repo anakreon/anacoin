@@ -1,4 +1,4 @@
-package blockchain
+package block
 
 import "github.com/anakreon/anacoin/internal/hasher"
 

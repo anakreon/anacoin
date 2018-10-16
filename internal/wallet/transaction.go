@@ -7,12 +7,12 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 )
 
-func (wallet *Wallet) getMyUnspentTransactionOutputs() blockchain.UnspentTransactionOutputs {
+func (wallet *Wallet) getMyUnspentTransactionOutputs() block.UnspentTransactionOutputs {
 	unspentTransactionOutputs := wallet.storage.FindUnspentTransactionOutputs()
-	return unspentTransactionOutputs.FilterUnspentTransactionOutputs(func(output blockchain.TransactionOutput) bool {
+	return unspentTransactionOutputs.FilterUnspentTransactionOutputs(func(output block.TransactionOutput) bool {
 		return output.GetPubKey() == wallet.GetPublicAddress()
 	})
 }
@@ -28,14 +28,14 @@ func (wallet *Wallet) getBalance() uint64 {
 	return balance
 }
 
-func (wallet *Wallet) createTransaction(targetAddress string, value uint64) blockchain.Transaction {
+func (wallet *Wallet) createTransaction(targetAddress string, value uint64) block.Transaction {
 	return wallet.buildTransaction(targetAddress, value)
 }
 
-func (wallet *Wallet) buildTransaction(targetAddress string, value uint64) blockchain.Transaction {
+func (wallet *Wallet) buildTransaction(targetAddress string, value uint64) block.Transaction {
 	inputs, remainderValue, _ := wallet.buildTransactionInputsForValue(value)
 	outputs := wallet.buildTransactionOutputs(value, remainderValue, targetAddress)
-	transaction := blockchain.NewTransaction(inputs, outputs)
+	transaction := block.NewTransaction(inputs, outputs)
 	signature := wallet.buildSignature(transaction.CalculateHash())
 	transaction.SetSignatureForInputs(signature)
 	return transaction

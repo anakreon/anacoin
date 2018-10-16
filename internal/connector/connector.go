@@ -3,16 +3,16 @@ package connector
 import (
 	"log"
 
-	"github.com/anakreon/anacoin/internal/blockchain"
+	"github.com/anakreon/anacoin/internal/block"
 	"github.com/anakreon/anacoin/internal/validator"
 )
 
 type storage interface {
-	AddBlock(block blockchain.Block)
+	AddBlock(block block.Block)
 }
 
 type unconfirmedTransactions interface {
-	AddTransaction(transaction blockchain.Transaction)
+	AddTransaction(transaction block.Transaction)
 }
 
 type Connector struct {
@@ -34,28 +34,28 @@ func (connector *Connector) AddPeer(peer Peer) {
 	connector.peers = append(connector.peers, peer)
 }
 
-func (connector *Connector) ReceiveBlock(block blockchain.Block) {
+func (connector *Connector) ReceiveBlock(block block.Block) {
 	if validator.IsValidBlock(&block) {
 		log.Println("receiving valid block")
 		connector.storage.AddBlock(block)
 	}
 }
 
-func (connector *Connector) ReceiveTransaction(transaction blockchain.Transaction) {
+func (connector *Connector) ReceiveTransaction(transaction block.Transaction) {
 	if validator.IsTransactionValid() {
 		log.Println("receiving valid transaction")
 		connector.unconfirmedTransactions.AddTransaction(transaction)
 	}
 }
 
-func (connector *Connector) BroadcastNewBlock(block blockchain.Block) {
+func (connector *Connector) BroadcastNewBlock(block block.Block) {
 	for _, peer := range connector.peers {
 		log.Println("sending new block")
 		peer.SendBlock(block)
 	}
 }
 
-func (connector *Connector) BroadcastNewTransaction(transaction blockchain.Transaction) {
+func (connector *Connector) BroadcastNewTransaction(transaction block.Transaction) {
 	for _, peer := range connector.peers {
 		log.Println("sending new transaction")
 		peer.SendTransaction(transaction)
