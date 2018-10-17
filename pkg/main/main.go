@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"net/rpc"
+	"syscall/js"
 
 	"github.com/anakreon/anacoin/internal/arpc"
 	"github.com/anakreon/anacoin/internal/block"
@@ -30,6 +32,22 @@ func (peer RpcPeer) SendTransaction(transaction block.Transaction) {
 	peer.rpcClient.Call("ConnectorRpc.ReceiveTransaction", arpc.ReceiveTransactionArgs{transaction}, nil)
 }
 
+type WasmPeer struct {
+	connector *connector.Connector
+}
+
+func (peer WasmPeer) SendBlock(block block.Block) {
+	blockJson, _ := json.Marshal(block)
+	wasmAPI := js.Global().Get("wasmSendBlock")
+	wasmAPI.Invoke(string(blockJson))
+}
+
+func (peer WasmPeer) SendTransaction(transaction block.Transaction) {
+	transactionJson, _ := json.Marshal(transaction)
+	wasmAPI := js.Global().Get("wasmSendTransaction")
+	wasmAPI.Invoke(string(transactionJson))
+}
+
 func run() {
 	storage := blockchain.NewBlockchain()
 	unconfirmedTransactions := mempool.NewUnconfirmedTransactions()
@@ -39,6 +57,9 @@ func run() {
 
 	miner := miner.NewMiner(storage, &unconfirmedTransactions, connectorInstance)
 	go miner.Mine(publicAddress)
+
+	wasmPeer := WasmPeer{connectorInstance}
+	connectorInstance.AddPeer(wasmPeer)
 
 	/*anacoinRPC := arpc.NewAnacoinRpc(&miner, &wallet)
 	go arpc.Serve(&anacoinRPC, "", "2222")

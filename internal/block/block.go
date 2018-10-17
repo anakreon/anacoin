@@ -19,7 +19,7 @@ func NewBlock(previousHash string, transactions []Transaction) *Block {
 	return &Block{
 		timestamp:    time.Now().Unix(),
 		previousHash: previousHash,
-		target:       5,
+		target:       4,
 		transactions: transactions,
 		merkleRoot:   calculateMerkleRoot(transactions),
 	}
