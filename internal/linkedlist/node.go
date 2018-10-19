@@ -2,7 +2,9 @@
 
 package linkedlisttpl
 
-import "github.com/cheekybits/genny/generic"
+import (
+	"github.com/cheekybits/genny/generic"
+)
 
 type Node struct {
 	index        uint64

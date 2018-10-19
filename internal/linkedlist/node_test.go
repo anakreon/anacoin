@@ -1,5 +1,3 @@
-//go:generate genny -in=$GOFILE -out=../linkedlist-gen/$GOFILE -pkg=linkedlist gen "NodeData=block.Block"
-
 package linkedlisttpl
 
 import (
